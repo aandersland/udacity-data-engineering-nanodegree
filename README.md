@@ -2,7 +2,7 @@
 
 This repo contains the projects for the Data Engineering Nanodegree program from [Udacity](https://www.udacity.com/course/data-engineer-nanodegree--nd027).
 
-## Project 1 - Data Modeling with PostgreSql - In progress
+## Project 1 - [Data Modeling with PostgreSql](https://github.com/aandersland/udacity-data-engineering-nanodegree/tree/master/data_modeling_postgresql) - In progress
 Sparkify is a new startup company that released a new music streaming app. Their analytics team is interested in understanding what songs users are listening too. Unfortunately this data is scattered across different JSON files and formats. In order for the Sparkify team to understand their users better, this data will need to be placed into a database that allows easier access to the data and is optimized for analytic queries.
 
 In order to meet the analytics teams needs, we will need to do the following:
@@ -12,8 +12,7 @@ In order to meet the analytics teams needs, we will need to do the following:
 
 Technologies used: Python, Postgres, Pandas, JSON
 
-
-## Project 2 - Data Modeling with Apache Cassandra - Not started
+## Project 2 - [Data Modeling with Apache Cassandra](https://github.com/aandersland/udacity-data-engineering-nanodegree/tree/master/data_modeling_apache_cassandra) - Not started
 In this project I modeled user activity data for a music streaming app called Sparkify. This was accomplished by the following:
 * Create a relational database using Apache Cassandra
 * Define Fact and Dimension tables
@@ -22,7 +21,7 @@ In this project I modeled user activity data for a music streaming app called Sp
 
 Technologies used: Python, Apache Cassandra
 
-## Project 3 - Cloud Data Warehouses - Not started
+## Project 3 - [Cloud Data Warehouses](https://github.com/aandersland/udacity-data-engineering-nanodegree/tree/master/cloud_data_warehouses) - Not started
 In this project I built an ETL pipeline that enables the analytics team at Sparkify to gain insights into song usage by their customers. This was accomplished by the following:
 * Setup AWS infrastructure using IaC
 * Extract data from S3
@@ -32,7 +31,7 @@ In this project I built an ETL pipeline that enables the analytics team at Spark
 Technologies used: Python, S3, IAM, VPC, EC2, RDS, PostgreSql
 
 
-## Project 4 - Data Lake with Spark - Not started
+## Project 4 - [Data Lake with Spark](https://github.com/aandersland/udacity-data-engineering-nanodegree/tree/master/data_lake_spark) - Not started
 In this project I built an ETL pipeline to create a data lake for the Sparkify team. This was accomplished by the following:
 * Extract JSON logs on user activity from S3
 * Extract JSON metadata on songs from S3 
@@ -43,7 +42,7 @@ In this project I built an ETL pipeline to create a data lake for the Sparkify t
 Technologies used: Python, SparkSQL, Spark Dataframes, Spark WebUI, S3, EMR, Athena, Amazon Glue
 
 
-## Project 5 - Data Pipelines with Apache Airflow - Not started
+## Project 5 - [Data Pipelines with Apache Airflow](https://github.com/aandersland/udacity-data-engineering-nanodegree/tree/master/data_pipelines_apache_airflow) - Not started
 In this project I further enhanced the data pipelines for the Sparkify team. This was accomplished by the following:
 * Create a new set of data pipelines
 * Automate those pipelines by configuring and scheduling them in Airflow
@@ -52,7 +51,7 @@ In this project I further enhanced the data pipelines for the Sparkify team. Thi
 Technologies used: Python, Apache Aiflow
 
 
-## Capstone Project - Not started
+## [Capstone Project](https://github.com/aandersland/udacity-data-engineering-nanodegree/tree/master/capstone_project) - Not started
 Combine what you've learned throughout the program to build your own data engineering portfolio project.
 
 Technologies used: Python
