@@ -3,21 +3,21 @@
 This repo contains the projects for the Data Engineering Nanodegree program from [Udacity](https://www.udacity.com/course/data-engineer-nanodegree--nd027).
 
 ## Project 1 - [Data Modeling with PostgreSql](https://github.com/aandersland/udacity-data-engineering-nanodegree/tree/master/data_modeling_postgresql) - In progress
-In this project I modeled user activity data for a music streaming app called Sparkify. This was accomplished by the following:
-* Created a relational database using PostgreSql
-* Defined Fact and Dimension tables
-* Built an ETL pipeline designed to optimize queries for understanding what songs users are listening to. 
-* Loaded the database
+Sparkify is a new startup company that released a new music streaming app. Their analytics team is interested in understanding what songs users are listening too. Unfortunately this data is scattered across different JSON files and formats. In order for the Sparkify team to understand their users better, this data will need to be placed into a database that allows easier access to the data and is optimized for analytic queries.
 
-Technologies used: Python, PostgreSql
+In order to meet the analytics teams needs, we will need to do the following:
+* Design a Star schema database that is optimized for song play analysis using Postgres.
+* Build an ETL pipeline to parse the data from the JSON files (Songs and Logs).
+* Populate the database tables with the parsed JSON data.
 
+Technologies used: Python, Postgres, Pandas, JSON
 
 ## Project 2 - [Data Modeling with Apache Cassandra](https://github.com/aandersland/udacity-data-engineering-nanodegree/tree/master/data_modeling_apache_cassandra) - Not started
 In this project I modeled user activity data for a music streaming app called Sparkify. This was accomplished by the following:
-* Created a relational database using Apache Cassandra
-* Defined Fact and Dimension tables
-* Built an ETL pipeline designed to optimize queries for understanding what songs users are listening to. 
-* Loaded the database
+* Create a relational database using Apache Cassandra
+* Define Fact and Dimension tables
+* Build an ETL pipeline designed to optimize queries for understanding what songs users are listening to. 
+* Load the database
 
 Technologies used: Python, Apache Cassandra
 
@@ -44,8 +44,8 @@ Technologies used: Python, SparkSQL, Spark Dataframes, Spark WebUI, S3, EMR, Ath
 
 ## Project 5 - [Data Pipelines with Apache Airflow](https://github.com/aandersland/udacity-data-engineering-nanodegree/tree/master/data_pipelines_apache_airflow) - Not started
 In this project I further enhanced the data pipelines for the Sparkify team. This was accomplished by the following:
-* Creating a new set of data pipelines
-* Automating those pipelines by configuring and scheduling them in Airflow
+* Create a new set of data pipelines
+* Automate those pipelines by configuring and scheduling them in Airflow
 * Monitor and debug the Airflow pipelines
 
 Technologies used: Python, Apache Aiflow
