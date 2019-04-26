@@ -6,9 +6,9 @@ This repo contains the projects for the Data Engineering Nanodegree program from
 Sparkify is a new startup company that released a new music streaming app. Their analytics team is interested in understanding what songs users are listening too. Unfortunately this data is scattered across different JSON files and formats. In order for the Sparkify team to understand their users better, this data will need to be placed into a database that allows easier access to the data and is optimized for analytic queries.
 
 In order to meet the analytics teams needs, we will need to do the following:
-* Design a Star schema database that is optimized for song play analysis using Postgres.
-* Build an ETL pipeline to parse the data from the JSON files (Songs and Logs).
-* Populate the database tables with the parsed JSON data.
+* Design a Star schema database that is optimized for song play analysis using Postgres. The Fact table will be called songplays along with our Dimension tables: users, songs, artists, and time. This will enable the analytics team to quickly query the data for their analysis.
+* Build an ETL pipeline to parse the data from the JSON files (Songs and Logs). Here we will use Python and Pandas to parse and cleanup the data.
+* Finally, we will populate the database tables using Python and prepared statements.
 
 Technologies used: Python, Postgres, Pandas, JSON
 

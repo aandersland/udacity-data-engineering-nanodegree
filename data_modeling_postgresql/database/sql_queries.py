@@ -7,24 +7,25 @@ time_table_drop = "DROP table IF EXISTS time;"
 
 # CREATE TABLES
 songplay_table_create = (
-    "CREATE TABLE IF NOT EXISTS songplays ("
-    "start_time time without time zone, user_id varchar, level varchar, "
-    "song_id varchar, artist_id varchar, session_id varchar, "
-    "location varchar, user_agent varchar, "
-    "primary key (start_time, song_id, artist_id));")
+    "CREATE TABLE IF NOT EXISTS songplays (songplay_id serial primary key,"
+    "start_time time without time zone not null, user_id varchar not null, "
+    "level varchar, song_id varchar not null, artist_id varchar not null, "
+    "session_id varchar not null, location varchar, user_agent varchar);")
 
 user_table_create = (
     "CREATE TABLE IF NOT EXISTS users (user_id varchar primary key, "
-    "first_name varchar, last_name varchar, gender varchar, level varchar);")
+    "first_name varchar, last_name varchar, gender varchar, "
+    "level varchar);")
 
 song_table_create = (
     "CREATE TABLE IF NOT EXISTS songs (song_id varchar primary key, "
-    "title varchar, artist_id varchar, year int, duration numeric(10,5));")
+    "title varchar not null, artist_id varchar not null, year int, "
+    "duration numeric(10,5));")
 
 artist_table_create = (
     "CREATE TABLE IF NOT EXISTS artists (artist_id varchar primary key"
-    ", name varchar, location varchar, lattiude numeric(10,5), "
-    "longitude numeric(10,5), unique(artist_id))")
+    ", name varchar not null, location varchar, lattiude numeric(10,5), "
+    "longitude numeric(10,5));")
 
 time_table_create = (
     "CREATE TABLE IF NOT EXISTS time (start_time time without time zone"
@@ -35,29 +36,24 @@ time_table_create = (
 # INSERT RECORDS
 songplay_table_insert = (
     "INSERT INTO songplays (start_time, user_id, level,"
-    " song_id, artist_id, session_id, location, user_agent) VALUES %s"
-    "on conflict (start_time, song_id, artist_id) do update set "
-    "start_time = songplays.start_time, "
-    "song_id = songplays.song_id, "
-    "artist_id = songplays.artist_id")
+    " song_id, artist_id, session_id, location, user_agent) VALUES %s;")
 
 user_table_insert = (
     "INSERT INTO users (user_id, first_name, last_name, gender, level) "
-    "VALUES %s on conflict (user_id) do update set user_id = users.user_id;")
+    "VALUES %s on conflict (user_id) do update "
+    "set level = excluded.level;")
 
 song_table_insert = (
     "INSERT INTO songs (song_id, title, artist_id, year, duration) VALUES %s "
-    "on conflict (song_id) do update set song_id = songs.song_id;")
+    "on conflict do nothing;")
 
 artist_table_insert = (
     "INSERT INTO artists (artist_id, name, location, lattiude, longitude) "
-    "VALUES %s on conflict (artist_id) do update set "
-    "artist_id = artists.artist_id;")
+    "VALUES %s on conflict do nothing;")
 
 time_table_insert = (
     "INSERT INTO time (start_time, hour, day, week, month, year, weekday) "
-    "VALUES %s on conflict (start_time) do update set "
-    "start_time = time.start_time;")
+    "VALUES %s on conflict do nothing;")
 
 # FIND SONGS
 song_select = ("select a.artist_id, song_id from artists a join "

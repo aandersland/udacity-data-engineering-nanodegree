@@ -155,6 +155,8 @@ def process_user_data(_df_logs, _conn, _cur):
     """
     print('Inserting user data. . .')
     user_df = _df_logs[['userId', 'firstName', 'lastName', 'gender', 'level']]
+    user_df = user_df[user_df['firstName'].notnull()]
+
     for _i, _row in user_df.iterrows():
         insert_values_to_database(_cur, _conn, user_table_insert,
                                   [_row.values])
