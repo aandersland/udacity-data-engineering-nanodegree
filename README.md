@@ -23,7 +23,7 @@ In order to meet the analytics teams needs, we will need to do the following:
 
 Technologies used: Python, Pandas, Apache Cassandra
 
-## Project 3 - [Cloud Data Warehouses](https://github.com/aandersland/udacity-data-engineering-nanodegree/tree/master/cloud_data_warehouses) - Not started
+## Project 3 - [Cloud Data Warehouses](https://github.com/aandersland/udacity-data-engineering-nanodegree/tree/master/cloud_data_warehouses) - In-progress
 In this project I built an ETL pipeline that enables the analytics team at Sparkify to gain insights into song usage by their customers. This was accomplished by the following:
 * Setup AWS infrastructure using IaC
 * Extract data from S3
