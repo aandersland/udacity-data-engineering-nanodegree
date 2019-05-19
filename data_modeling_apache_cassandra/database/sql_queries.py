@@ -15,8 +15,8 @@ song_title text, first_name text, last_name text, \
 PRIMARY KEY ((user_id, session_id), item_in_session))")
 
 create_session_play_artist = ("CREATE TABLE IF NOT EXISTS session_play_artist \
-(song_title text, first_name text, last_name text, \
-PRIMARY KEY (song_title, first_name, last_name))")
+(song_title text, user_id int, first_name text, last_name text, \
+PRIMARY KEY (song_title, user_id))")
 
 # INSERT RECORDS
 insert_session_song_play = ("INSERT INTO session_song_play \
