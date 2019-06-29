@@ -72,14 +72,14 @@ time_table_create = ("CREATE TABLE IF NOT EXISTS "
 staging_events_copy = ("""
     copy sporting_event_ticket from 's3://udacity-dend/log_data'
     credentials 'aws_iam_role={}'
-    gzip delimiter ';' compupdate off region 'us-west-2';
-    """).format('test')
+    gzip delimiter ';' compupdate off statupdate off region 'us-west-2';
+    """).format(config.get('IAM_ROLE', 'ARN'))
 
 staging_songs_copy = ("""
     copy sporting_event_ticket from 's3://udacity-dend/song_data'
     credentials 'aws_iam_role={}'
-    gzip delimiter ';' compupdate off region 'us-west-2';
-    """).format('test')
+    gzip delimiter ';' compupdate off statupdate off region 'us-west-2';
+    """).format(config.get('IAM_ROLE', 'ARN'))
 
 # FINAL TABLES
 
