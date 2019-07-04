@@ -1,3 +1,5 @@
+CHECK TO MAKE SURE KEYS ARE NOT INCLUDED
+
 # Table Creation
 CRITERIA
 MEETS SPECIFICATIONS
@@ -53,3 +55,7 @@ In order to meet the companies needs, we will need to do the following:
 
 
 ## Resources
+* https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/redshift.html
+* https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/redshift.html#Redshift.Client.describe_clusters
+* https://docs.aws.amazon.com/redshift/latest/dg/r_COPY.html
+
