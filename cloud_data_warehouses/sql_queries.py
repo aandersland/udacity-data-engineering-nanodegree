@@ -32,8 +32,8 @@ staging_events_table_create = ("CREATE TABLE IF NOT EXISTS "
                                "song varchar, status int, ts timestamp, "
                                "userAgent varchar, userId int);")
 
-staging_songs_table_create = ("CREATE TABLE IF NOT EXISTS "
-                              "staging_songs_table ( id int identity(0,1), "
+staging_songs_table_create = ("CREATE TABLE IF NOT EXISTS staging_songs_table "
+                              "( id int identity(0,1), "
                               "num_songs int, artist_id varchar, "
                               "artist_latitude float, "
                               "artist_longitude float, "
@@ -41,8 +41,8 @@ staging_songs_table_create = ("CREATE TABLE IF NOT EXISTS "
                               "song_id varchar, title varchar, "
                               "duration float, year int);")
 
-songplay_table_create = ("CREATE TABLE IF NOT EXISTS "
-                         "songplays (songplay_id int identity(0,1) primary key,"
+songplay_table_create = ("CREATE TABLE IF NOT EXISTS songplays "
+                         "(songplay_id int identity(0,1) primary key,"
                          " start_time timestamp not null sortkey distkey, "
                          "user_id varchar not null, level varchar, "
                          "song_id varchar not null, "
@@ -50,13 +50,13 @@ songplay_table_create = ("CREATE TABLE IF NOT EXISTS "
                          "session_id varchar not null, location varchar, "
                          "user_agent varchar);")
 
-user_table_create = ("CREATE TABLE IF NOT EXISTS "
-                     "users (user_id varchar sortkey primary key, "
+user_table_create = ("CREATE TABLE IF NOT EXISTS users "
+                     "(user_id varchar sortkey primary key, "
                      "first_name varchar, last_name varchar, gender varchar, "
                      "level varchar);")
 
-song_table_create = ("CREATE TABLE IF NOT EXISTS "
-                     "songs (song_id varchar sortkey primary key, "
+song_table_create = ("CREATE TABLE IF NOT EXISTS songs "
+                     "(song_id varchar sortkey primary key, "
                      "title varchar not null, artist_id varchar not null, "
                      "year int, duration float);")
 
@@ -131,7 +131,7 @@ time_table_insert = (
 
 # SELECT COUNTS
 select_staging_events_table = "SELECT COUNT(*) FROM staging_events_table;"
-select_staging_songs_table  = "SELECT COUNT(*) FROM staging_songs_table;"
+select_staging_songs_table = "SELECT COUNT(*) FROM staging_songs_table;"
 select_songplays = "SELECT COUNT(*) FROM songplays;"
 select_users = "SELECT COUNT(*) FROM users;"
 select_songs = "SELECT COUNT(*) FROM songs;"
@@ -154,32 +154,38 @@ insert_table_queries = [songplay_table_insert, user_table_insert,
                         song_table_insert, artist_table_insert,
                         time_table_insert]
 
-select_table_queries = [select_staging_events_table, select_staging_songs_table,
-                        select_songplays, select_users, select_songs,
-                        select_artists, select_time]
+select_table_queries = [select_staging_events_table,
+                        select_staging_songs_table, select_songplays,
+                        select_users, select_songs, select_artists,
+                        select_time]
 
 
 def set_staging_copy_params(_config):
-    staging_events_copy = ("""
+    """
+    Updates the copy statements with the correct ARN
+    :param _config: Configuration file
+    :return: Two copy statements: events, songs
+    """
+    _staging_events_copy = ("""
         copy staging_events_table from '{}'
         credentials 'aws_iam_role={}'
         region '{}'
         timeformat as 'epochmillisecs'
-        compupdate off 
-        statupdate off 
+        compupdate off
+        statupdate off
         format as JSON '{}';""").format(_config.get('S3', 'LOG_DATA'),
                                         _config.get('DWH', 'DWH_ROLE_ARN'),
                                         _config.get('AWS', 'REGION'),
                                         _config.get('S3', 'LOG_JSONPATH'), )
 
-    staging_songs_copy = ("""
+    _staging_songs_copy = ("""
         copy staging_songs_table from '{}'
         credentials 'aws_iam_role={}'
         region '{}'
-        compupdate off 
+        compupdate off
         statupdate off
         format as JSON 'auto';""").format(_config.get('S3', 'SONG_DATA'),
                                           _config.get('DWH', 'DWH_ROLE_ARN'),
                                           _config.get('AWS', 'REGION'))
 
-    return staging_events_copy, staging_songs_copy
+    return _staging_events_copy, _staging_songs_copy

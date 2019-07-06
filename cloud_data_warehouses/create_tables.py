@@ -3,6 +3,12 @@ import psycopg2
 
 
 def drop_tables(cur, conn, queries):
+    """
+    Drop tables in a database
+    :param cur: Cursor for database
+    :param conn: Connection for database
+    :param queries: List of queries to execute
+    """
     print('Dropping tables: ', queries)
     for query in queries:
         cur.execute(query)
@@ -10,6 +16,12 @@ def drop_tables(cur, conn, queries):
 
 
 def create_tables(cur, conn, queries):
+    """
+    Create tables in a database
+    :param cur: Cursor for database
+    :param conn: Connection for database
+    :param queries: List of queries to execute
+    """
     print('Creating tables: ', queries)
     for query in queries:
         cur.execute(query)
