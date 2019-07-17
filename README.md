@@ -13,7 +13,7 @@ In order to meet the analytics teams needs, we will need to do the following:
 
 Technologies used: Python, Postgres, Pandas, JSON
 
-## Project 2 - [Data Modeling with Apache Cassandra](https://github.com/aandersland/udacity-data-engineering-nanodegree/tree/master/data_modeling_apache_cassandra) - In-progress
+## Project 2 - [Data Modeling with Apache Cassandra](https://github.com/aandersland/udacity-data-engineering-nanodegree/tree/master/data_modeling_apache_cassandra) - Complete
 Sparkify is a new startup company that released a new music streaming app. Their analytics team is interested in understanding what songs users are listening too. Unfortunately this data is scattered across different CSV files. In order for the Sparkify team to understand their users better, this data will need to be placed into a database that allows easier access to the data and is optimized for analytic queries.
 
 In order to meet the analytics teams needs, we will need to do the following:
@@ -33,7 +33,7 @@ In this project I built an ETL pipeline that enables the analytics team at Spark
 Technologies used: Python, S3, IAM, VPC, EC2, RDS, PostgreSql
 
 
-## Project 4 - [Data Lake with Spark](https://github.com/aandersland/udacity-data-engineering-nanodegree/tree/master/data_lake_spark) - Not started
+## Project 4 - [Data Lake with Spark](https://github.com/aandersland/udacity-data-engineering-nanodegree/tree/master/data_lake_spark) - In-progress
 In this project I built an ETL pipeline to create a data lake for the Sparkify team. This was accomplished by the following:
 * Extract JSON logs on user activity from S3
 * Extract JSON metadata on songs from S3 
