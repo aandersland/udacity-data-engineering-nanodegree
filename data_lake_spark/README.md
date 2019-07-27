@@ -20,16 +20,8 @@ In order to meet the companies needs, we will need to do the following:
 * requirements.txt - Python libraries used in the virtual environment, used by venv_setup.py.
 * venv_setup.py - Script to create and configure a python virtual environment.
 
-## Results
-Record counts for each table as a result of running etl.py.
-* staging_events_table - 8056
-* staging_songs_table - 14896
-* songplays - 333
-* users - 105
-* songs - 14896
-* artists - 10025
-* timev8023
-
+## Database Schema
+![Database Schema](Sparkify_Data_Lake.png)
 
 ## Resources
 https://spark.apache.org/docs/2.2.0/sql-programming-guide.html#datasets-and-dataframes
