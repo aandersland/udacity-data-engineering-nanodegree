@@ -54,7 +54,7 @@ In order to meet the companies needs, we will need to do the following:
 * requirements.txt - Python libraries used in the virtual environment, used by venv_setup.py.
 * venv_setup.py - Script to create and configure a python virtual environment.
 
-## Database Schema
+## Airflow Pipeline
 ![Airflow Pipeline](Airflow_Pipeline.png)
 
 ## Resources
