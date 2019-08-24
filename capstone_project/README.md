@@ -39,4 +39,9 @@ $ source projectname/bin/activate
 * https://stackoverflow.com/questions/49505872/read-json-to-pandas-dataframe-valueerror-mixing-dicts-with-non-series-may-lea
 * https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.io.json.json_normalize.html
 * https://github.com/pandas-profiling/pandas-profiling
-* *
+* https://www.50states.com/abbreviations.htm
+* https://stackabuse.com/download-files-with-python/
+* https://stackoverflow.com/questions/3964681/find-all-files-in-a-directory-with-extension-txt-in-python
+* https://dbader.org/blog/python-parallel-computing-in-60-seconds
+* https://stackoverflow.com/questions/5442910/python-multiprocessing-pool-map-for-multiple-arguments
+
