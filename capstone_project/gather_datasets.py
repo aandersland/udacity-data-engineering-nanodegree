@@ -14,8 +14,8 @@ def get_airport_list(_config):
     :return: Parameter list for the write_file_with_get method
     """
     _air_param_list = []
-    _inbound_data_folder = f"{_config['LOCAL']['BASE_DIRECTORY']}/" \
-                           f"{_config['LOCAL']['INBOUND_FOLDER']}"
+    _inbound_data_folder = f"{_config['GENERAL']['BASE_DIRECTORY']}/" \
+                           f"{_config['GENERAL']['INBOUND_FOLDER']}"
 
     if _config['GENERAL']['SET_AIRPORTS'] == 'INT':
         _airport_list = _config['WEATHER']['INTERNATIONAL_AIRPORTS'].split(',')
@@ -37,14 +37,13 @@ def get_airport_list(_config):
     return _air_param_list
 
 
-# weather
 def process_weather(_config):
     """
     Method to gather the weather data
     :param _config: Configurations
     """
-    _inbound_data_folder = f"{_config['LOCAL']['BASE_DIRECTORY']}/" \
-                           f"{_config['LOCAL']['INBOUND_FOLDER']}/airports"
+    _inbound_data_folder = f"{_config['GENERAL']['BASE_DIRECTORY']}/" \
+                           f"{_config['GENERAL']['INBOUND_FOLDER']}/airports"
 
     # setup multiprocessing
     _pool = multiprocessing.Pool()
@@ -58,15 +57,14 @@ def process_weather(_config):
     _pool.starmap(write_file_with_get, _param_list)
 
 
-# flights
 def process_flights(_config):
     """
     Method to gather the flight data
     :param _config: Configurations
     """
 
-    _inbound_data_folder = f"{_config['LOCAL']['BASE_DIRECTORY']}/" \
-                           f"{_config['LOCAL']['INBOUND_FOLDER']}/flights"
+    _inbound_data_folder = f"{_config['GENERAL']['BASE_DIRECTORY']}/" \
+                           f"{_config['GENERAL']['INBOUND_FOLDER']}/flights"
     _param_list = []
 
     for yr in range(int(_config['GENERAL']['START_YEAR']),
@@ -82,14 +80,13 @@ def process_flights(_config):
     _pool.starmap(get_url_content_curl, _param_list)
 
 
-# airports
 def process_airports(_config):
     """
     Method to gather the airport data
     :param _config: Configurations
     """
-    _inbound_data_folder = f"{_config['LOCAL']['BASE_DIRECTORY']}/" \
-                           f"{_config['LOCAL']['INBOUND_FOLDER']}"
+    _inbound_data_folder = f"{_config['GENERAL']['BASE_DIRECTORY']}/" \
+                           f"{_config['GENERAL']['INBOUND_FOLDER']}"
 
     _r = get_url_content(_config['URL']['LINK_AIRPORTS_DATA'], None)
 
@@ -119,7 +116,6 @@ def get_url_content_curl(_url, _file_name, _inbound_data_folder):
     :param _file_name: File name to create
     :param _inbound_data_folder: Directory to write files too
     """
-    # print(f"curl {_url} -o {_inbound_data_folder}/{_file_name}")
     os.system(f"curl {_url} -o {_inbound_data_folder}/{_file_name}")
 
 
@@ -132,10 +128,6 @@ def write_file(_response, _file_name, _directory):
     """
     if not os.path.exists(_directory):
         os.mkdir(_directory)
-
-    # print(_response.request.headers)
-    # print(_response.headers)
-    # print(_response.encoding, _response.apparent_encoding)
 
     if 'no data available' not in _response.text:
         with open(f'{_directory}/{_file_name}', 'wb') as fd:
@@ -153,9 +145,6 @@ def write_file_with_get(_url, _params, _file_name, _directory):
     :param _directory: Directory that files will be written too
     """
     _response = get_url_content(_url, _params)
-    # print(_response.request.headers)
-    # print(_response.headers)
-    # print(_response.encoding, _response.apparent_encoding)
 
     if 'no data available' not in _response.text:
         with open(f'{_directory}/{_file_name}', 'wb') as fd:
@@ -168,10 +157,9 @@ def main():
     config = configparser.ConfigParser()
     config.read('configs.cfg')
 
-    # process_airports(config)
-    # todo fix this
+    process_airports(config)
     process_flights(config)
-    # process_weather(config)
+    process_weather(config)
 
 
 if __name__ == "__main__":

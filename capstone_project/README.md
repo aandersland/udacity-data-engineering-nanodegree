@@ -44,4 +44,7 @@ $ source projectname/bin/activate
 * https://stackoverflow.com/questions/3964681/find-all-files-in-a-directory-with-extension-txt-in-python
 * https://dbader.org/blog/python-parallel-computing-in-60-seconds
 * https://stackoverflow.com/questions/5442910/python-multiprocessing-pool-map-for-multiple-arguments
-
+* https://medium.com/datareply/airflow-lesser-known-tips-tricks-and-best-practises-cf4d4a90f8f
+* https://stackoverflow.com/questions/27964134/change-value-in-ini-file-using-configparser-python
+*
+*
