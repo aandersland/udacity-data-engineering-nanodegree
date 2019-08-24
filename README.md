@@ -48,7 +48,7 @@ In order to meet the companies needs, I did the following:
 Technologies used: Python, SparkSQL, Spark Dataframes, Spark WebUI, S3, EMR, Athena, Amazon Glue
 
 
-## Project 5 - [Data Pipelines with Apache Airflow](https://github.com/aandersland/udacity-data-engineering-nanodegree/tree/master/data_pipelines_apache_airflow) - Submitted
+## Project 5 - [Data Pipelines with Apache Airflow](https://github.com/aandersland/udacity-data-engineering-nanodegree/tree/master/data_pipelines_apache_airflow) - Completed
 Sparkify is a new startup company that released a new music streaming app. Their user base has increased and their architecture footprint is also increasing. To manage this infrastructure they are looking to increase the automation and monitoring of their data pipelines. They have chosen to use Apache Airflow as their tool of choice.
 
 In order to meet the companies needs, I did the following:

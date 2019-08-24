@@ -47,15 +47,15 @@ def process_weather(_config):
                            f"{_config['LOCAL']['INBOUND_FOLDER']}/airports"
 
     # setup multiprocessing
-    pool = multiprocessing.Pool()
+    _pool = multiprocessing.Pool()
 
     # get list of params for method call
-    param_list = get_airport_list(_config)
+    _param_list = get_airport_list(_config)
 
     if not os.path.exists(_inbound_data_folder):
         os.mkdir(_inbound_data_folder)
 
-    pool.starmap(write_file_with_get, param_list)
+    _pool.starmap(write_file_with_get, _param_list)
 
 
 # flights
@@ -64,13 +64,22 @@ def process_flights(_config):
     Method to gather the flight data
     :param _config: Configurations
     """
-    pass
-    # todo does not work with these files, header maybe. try another method curl
-    # for yr in range(int(config['GENERAL']['START_YEAR']),
-    #                 int(config['GENERAL']['END_YEAR'])):
-    #     url = config['URL']['LINK_FLIGHT_DATA']
-    #     file_name = f"{yr}.{config['URL']['FLIGHT_DATA_EXTENSION']}"
-    #     write_file(url, file_name, inbound_data_folder, None)
+
+    _inbound_data_folder = f"{_config['LOCAL']['BASE_DIRECTORY']}/" \
+                           f"{_config['LOCAL']['INBOUND_FOLDER']}/flights"
+    _param_list = []
+
+    for yr in range(int(_config['GENERAL']['START_YEAR']),
+                    int(_config['GENERAL']['END_YEAR'])+1):
+        _file_name = f"{yr}.{_config['URL']['FLIGHT_DATA_EXTENSION']}"
+        _url = f"{_config['URL']['LINK_FLIGHT_DATA']}/{_file_name}"
+        _param_list.append((_url, _file_name, _inbound_data_folder))
+
+    if not os.path.exists(_inbound_data_folder):
+        os.mkdir(_inbound_data_folder)
+    _cpu = int(_config['GENERAL']['CPU_CORES_PARALLEL_PROCESSING'])
+    _pool = multiprocessing.Pool(_cpu)
+    _pool.starmap(get_url_content_curl, _param_list)
 
 
 # airports
@@ -103,6 +112,17 @@ def get_url_content(_url, _params):
     return r
 
 
+def get_url_content_curl(_url, _file_name, _inbound_data_folder):
+    """
+    Method to get bz2 flight files
+    :param _url: URL for file to download
+    :param _file_name: File name to create
+    :param _inbound_data_folder: Directory to write files too
+    """
+    # print(f"curl {_url} -o {_inbound_data_folder}/{_file_name}")
+    os.system(f"curl {_url} -o {_inbound_data_folder}/{_file_name}")
+
+
 def write_file(_response, _file_name, _directory):
     """
     Method to write files to a target directory from a request response
@@ -113,9 +133,9 @@ def write_file(_response, _file_name, _directory):
     if not os.path.exists(_directory):
         os.mkdir(_directory)
 
-    print(_response.request.headers)
-    print(_response.headers)
-    print(_response.encoding, _response.apparent_encoding)
+    # print(_response.request.headers)
+    # print(_response.headers)
+    # print(_response.encoding, _response.apparent_encoding)
 
     if 'no data available' not in _response.text:
         with open(f'{_directory}/{_file_name}', 'wb') as fd:
@@ -133,9 +153,9 @@ def write_file_with_get(_url, _params, _file_name, _directory):
     :param _directory: Directory that files will be written too
     """
     _response = get_url_content(_url, _params)
-    print(_response.request.headers)
-    print(_response.headers)
-    print(_response.encoding, _response.apparent_encoding)
+    # print(_response.request.headers)
+    # print(_response.headers)
+    # print(_response.encoding, _response.apparent_encoding)
 
     if 'no data available' not in _response.text:
         with open(f'{_directory}/{_file_name}', 'wb') as fd:
@@ -148,10 +168,10 @@ def main():
     config = configparser.ConfigParser()
     config.read('configs.cfg')
 
-    process_airports(config)
+    # process_airports(config)
     # todo fix this
-    # process_flights(config)
-    process_weather(config)
+    process_flights(config)
+    # process_weather(config)
 
 
 if __name__ == "__main__":
