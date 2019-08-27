@@ -46,5 +46,71 @@ $ source projectname/bin/activate
 * https://stackoverflow.com/questions/5442910/python-multiprocessing-pool-map-for-multiple-arguments
 * https://medium.com/datareply/airflow-lesser-known-tips-tricks-and-best-practises-cf4d4a90f8f
 * https://stackoverflow.com/questions/27964134/change-value-in-ini-file-using-configparser-python
+* https://www.tecmint.com/linux-curl-command-examples/
+* https://docs.python.org/2/library/multiprocessing.html
+* https://docs.aws.amazon.com/redshift/latest/dg/c_Supported_data_types.html
 *
-*
+
+## Data Model
+
+### f_flights
+* flights_id (integer)
+* flight_detail_id (integer)
+* airport_depart_id (integer)
+* airport_depart_weather_id (integer)
+* depart_time_id (integer)
+* airport_arrival_id (integer)
+* airport_arrival_weather_id (integer)
+* arrival_time_id (integer)
+* schdld_flight_time_sec (integer)
+* schdld_flight_time_min (integer)
+* flight_time_sec (integer)
+* flight_time_min (integer)
+* depart_delay_sec (integer)
+* depart_delay_min (integer)
+* arrival_delay_sec (integer)
+* arrival_delay_min (integer)
+
+### d_flight_detail
+* flight_detail_id (integer)
+* carrier (string)
+* origin (string)
+* dest (string)
+* distance (integer)
+* schdld_depart_time (datetime)
+* schdld_arrival_time (datetime)
+* cancelled (integer)
+* diverted (integer)
+
+### d_time
+* time_id (integer)
+* date (date)
+* datetime (datetime)
+* timezone (string)
+* year (integer)
+* quarter (integer)
+* month (integer)
+* day (integer)
+* day_of_week (integer)
+* hour (integer)
+* minute (integer)
+* second (integer)
+
+### d_weather
+* weather_id (integer)
+* date (date)
+* max_temp (integer)
+* min_temp (integer)
+* avg_temp (integer)
+* precipitation_in (integer)
+* snow_fall_in (integer)
+* snow_depth_in (integer)
+
+### d_airport
+* name (string)
+* airport_code (string)
+* city (string)
+* state (string)
+* country (string)
+* latitude (float)
+* longitude (float)
