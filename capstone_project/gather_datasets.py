@@ -5,6 +5,7 @@ import pandas as pd
 import wget
 import collections
 import multiprocessing
+import json
 
 
 def get_airport_list(_config):
@@ -17,7 +18,9 @@ def get_airport_list(_config):
     _inbound_data_folder = f"{_config['GENERAL']['BASE_DIRECTORY']}/" \
                            f"{_config['GENERAL']['INBOUND_FOLDER']}"
 
-    if _config['GENERAL']['SET_AIRPORTS'] == 'INT':
+    if _config['GENERAL']['SET_AIRPORTS'] == 'TEST':
+        _airport_list = _config['WEATHER']['TEST'].split(',')
+    elif _config['GENERAL']['SET_AIRPORTS'] == 'INT':
         _airport_list = _config['WEATHER']['INTERNATIONAL_AIRPORTS'].split(',')
     else:
         _airport_list = _config['WEATHER']['ALL_AIRPORTS'].split(',')
@@ -32,7 +35,7 @@ def get_airport_list(_config):
         _air_param_list.append((_config['URL']['LINK_WEATHER_DATA'],
                                 _params,
                                 f'{_airport}.json',
-                                f'{_inbound_data_folder}/airports'))
+                                f'{_inbound_data_folder}/weather'))
 
     return _air_param_list
 
@@ -43,7 +46,7 @@ def process_weather(_config):
     :param _config: Configurations
     """
     _inbound_data_folder = f"{_config['GENERAL']['BASE_DIRECTORY']}/" \
-                           f"{_config['GENERAL']['INBOUND_FOLDER']}/airports"
+                           f"{_config['GENERAL']['INBOUND_FOLDER']}/weather"
 
     # setup multiprocessing
     _pool = multiprocessing.Pool()
@@ -68,7 +71,7 @@ def process_flights(_config):
     _param_list = []
 
     for yr in range(int(_config['GENERAL']['START_YEAR']),
-                    int(_config['GENERAL']['END_YEAR'])+1):
+                    int(_config['GENERAL']['END_YEAR']) + 1):
         _file_name = f"{yr}.{_config['URL']['FLIGHT_DATA_EXTENSION']}"
         _url = f"{_config['URL']['LINK_FLIGHT_DATA']}/{_file_name}"
         _param_list.append((_url, _file_name, _inbound_data_folder))
@@ -128,12 +131,28 @@ def write_file(_response, _file_name, _directory):
     """
     if not os.path.exists(_directory):
         os.mkdir(_directory)
-
+    # todo need to unzip the bz2 files on s3
     if 'no data available' not in _response.text:
         with open(f'{_directory}/{_file_name}', 'wb') as fd:
             for chunk in _response.iter_content(chunk_size=1024):
                 fd.write(chunk)
             fd.close()
+
+
+def convert_json_format(_json, _pos):
+    _new = {'name': _json['meta']['name'],
+            'date': _json['data'][_pos][0],
+            'max_temp': _json['data'][_pos][1],
+            'min_temp': _json['data'][_pos][2],
+            'avg_temp': _json['data'][_pos][3],
+            'precipitation_in': _json['data'][_pos][4],
+            'snow_fall_in': _json['data'][_pos][5],
+            'snow_depth_in': _json['data'][_pos][6]}
+    _new_json = json.dumps(_new)
+    if _json['data'][_pos][0] == 'M' or _json['data'][_pos][1] == 'M':
+        return None
+    else:
+        return _new_json
 
 
 def write_file_with_get(_url, _params, _file_name, _directory):
@@ -144,12 +163,20 @@ def write_file_with_get(_url, _params, _file_name, _directory):
     :param _file_name: Name of new file
     :param _directory: Directory that files will be written too
     """
+    print(_url, _params, _file_name, _directory)
     _response = get_url_content(_url, _params)
 
     if 'no data available' not in _response.text:
+        _response_content = _response.content.decode()
+        _json = json.loads(_response_content)
+
         with open(f'{_directory}/{_file_name}', 'wb') as fd:
-            for chunk in _response.iter_content(chunk_size=1024):
-                fd.write(chunk)
+            _data_len = len(_json['data'])
+            for d in range(0, _data_len):
+                _json_str = convert_json_format(_json, d)
+
+                if _json_str is not None:
+                    fd.write(_json_str.encode())
             fd.close()
 
 
@@ -157,8 +184,8 @@ def main():
     config = configparser.ConfigParser()
     config.read('configs.cfg')
 
-    process_airports(config)
-    process_flights(config)
+    # process_airports(config)
+    # process_flights(config)
     process_weather(config)
 
 

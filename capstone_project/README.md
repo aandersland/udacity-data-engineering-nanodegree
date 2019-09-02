@@ -23,6 +23,39 @@ Weather Data -
 
 ## ETL
 
+## How to Run
+1. Setup an [AWS account](https://aws.amazon.com/premiumsupport/knowledge-center/create-and-activate-aws-account/) and [create a user](https://docs.aws.amazon.com/IAM/latest/UserGuide/getting-started_create-admin-group.html) that has read access to S3 and admin rights on Redshift.
+2. Start up a Redshift cluster and grant your user (awsuser) access.
+![Redshift Cluster](AWS_Cluster.png)
+3. In the Redshift Query Editor run each create statement in the create_tables.sql file.
+![Redshift Query Editor](Create_Tables.png)
+3. Run **python3 venv_setup.py**
+4. Run **source venv/bin/activate**, you should see (venv) at the beginning of the line.
+5. Run **pwd** and copy the path
+6. Run **export AIRFLOW_HOME=(paste from step 5)/airflow**
+7. Run **airflow initdb**
+7. Open the ./airflow/airflow.cfg and set the following:
+  * dags_folder = ./dags
+  * plugins_folder = ./plugins
+8. Create new terminal and run **source venv/bin/activate** then **airflow webserver -p 8080**
+9. Create new terminal and run **source venv/bin/activate** then **airflow scheduler**
+10. Navigate to http://localhost:8080/admin/variable/ and create a new one with the details:
+  * Key = s3_bucket
+  * Val = udacity-dend
+11. Navigate to http://localhost:8080/admin/connection/ and create a new connection with the details:
+  * Conn Id = aws_credentials
+  * Conn Type = Amazon Web Services
+  * Login = AWS Key from your IAM user credentials
+  * Password = AWS Secret from your IAM user credentials
+12. Navigate to http://localhost:8080/admin/connection/ and create a new connection with the details:
+  * Conn Id = redshift
+  * Conn Type = Postgres
+  * Host = (enter your Redshift host path here without the port number)
+  * Login = awsuser
+  * Password = (awsuser password)
+  * Port = 5439
+13. Navigate to http://localhost:8080/admin/airflow/tree?dag_id=sparkify_dag and toggle the DAG to On in the upper left. Wait for the schedule to run or manually trigger.
+![Airflow DAG](Airflow_DAG.png)
 
 
 ## Run
@@ -49,6 +82,12 @@ $ source projectname/bin/activate
 * https://www.tecmint.com/linux-curl-command-examples/
 * https://docs.python.org/2/library/multiprocessing.html
 * https://docs.aws.amazon.com/redshift/latest/dg/c_Supported_data_types.html
+* https://docs.aws.amazon.com/redshift/latest/dg/t_loading-gzip-compressed-data-files-from-S3.html
+* https://docs.aws.amazon.com/redshift/latest/dg/r_CAST_function.html
+* https://docs.aws.amazon.com/redshift/latest/dg/r_concat_op.html
+* https://docs.aws.amazon.com/redshift/latest/dg/r_DATEDIFF_function.html
+* https://docs.aws.amazon.com/redshift/latest/dg/r_COPY_command_examples.html
+* https://docs.aws.amazon.com/redshift/latest/dg/copy-parameters-data-conversion.html
 *
 
 ## Data Model

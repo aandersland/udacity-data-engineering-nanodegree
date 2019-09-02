@@ -1,7 +1,61 @@
 class CreateTables:
-    # todo determine not nulls, pks, distributions, partitions
-    create_f_flights = ("""CREATE TABLE weatherfly.f_flights (
-        flights_id int4 NOT NULL,
+
+    create_staging_flights = ("""CREATE TABLE public.stage_flight_details (
+        Year varchar(10),
+        Month varchar(10),
+        DayofMonth varchar(10),
+        DayOfWeek varchar(10),
+        DepTime varchar(10),
+        CRSDepTime varchar(10),
+        ArrTime varchar(10),
+        CRSArrTime varchar(10),
+        UniqueCarrier varchar(10),
+        FlightNum varchar(10),
+        TailNum varchar(10),
+        ActualElapsedTime varchar(10),
+        CRSElapsedTime varchar(10),
+        AirTime varchar(10),
+        ArrDelay varchar(10),
+        DepDelay varchar(10),
+        Origin varchar(10),
+        Dest varchar(10),
+        Distance varchar(10),
+        TaxiIn varchar(10),
+        TaxiOut varchar(10),
+        Cancelled varchar(10),
+        CancellationCode varchar(10),
+        Diverted varchar(10),
+        CarrierDelay varchar(10),
+        WeatherDelay varchar(10),
+        NASDelay varchar(10),
+        SecurityDelay varchar(10),
+        LateAircraftDelay varchar(10)
+        );""")
+
+    create_staging_airports = ("""CREATE TABLE public.stage_airports (
+        iata varchar(10),
+        airport varchar(100) NOT NULL,
+        city varchar(50),
+        state varchar(10),
+        country varchar(10),
+        lat numeric(13,8),
+        long numeric(13,8)
+        );""")
+
+    create_staging_weather = ("""CREATE TABLE public.stage_weather (
+        name varchar(100),
+        "date" date,
+        max_temp int2,
+        min_temp int2,
+        avg_temp numeric(4,1),
+        precipitation_in varchar(10),
+        snow_fall_in varchar(10),
+        snow_depth_in varchar(10)
+        );""")
+
+    # todo validate sortkeys and distkeys
+    create_f_flights = ("""CREATE TABLE public.f_flights (
+        flights_id int identity(0,1) NOT NULL PRIMARY KEY,
         flight_detail_id int4,
         airport_depart_id int4,
         airport_depart_weather_id int4,
@@ -9,65 +63,55 @@ class CreateTables:
         airport_arrival_id int4,
         airport_arrival_weather_id int4,
         arrival_time_id int4,
-        schdld_flight_time_sec int4,
         schdld_flight_time_min int2,
-        flight_time_sec int4,
         flight_time_min int2,
-        depart_delay_sec int4,
         depart_delay_min int2,
-        arrival_delay_sec int4,
-        arrival_delay_min int2,
-        CONSTRAINT f_flights_pk PRIMARY KEY (flights_id)
+        arrival_delay_min int2
         );""")
 
-    create_d_flight_detail = ("""CREATE TABLE weatherfly.d_flight_detail (
-        flight_detail_id int4 NOT NULL,
+    create_d_flight_detail = ("""CREATE TABLE public.d_flight_detail (
+        flight_detail_id int identity(0,1) NOT NULL PRIMARY KEY,
         carrier varchar(5),
         origin varchar(3),
         dest varchar(3),
         distance int2,
-        schdld_depart_time timestamp without time zone,
-        schdld_arrival_time timestamp without time zone,
+        schdld_dprt_time timestamp without time zone SORTKEY DISTKEY,
+        schdld_arvl_time timestamp without time zone,
         cancelled int2,
-        diverted int2,
-        CONSTRAINT d_flight_detail_pk PRIMARY KEY (d_flight_detail)
+        diverted int2
         );""")
 
-    create_d_time = ("""CREATE TABLE weatherfly.d_time (
-        time_id int NOT NULL,
-        'date' date,
-        datetime timestamp without time zone,
-        timezone varchar(5),
+    create_d_time = ("""CREATE TABLE public.d_time (
+        time_id int identity(0,1) NOT NULL PRIMARY KEY,
+        "date" date,
+        datetime timestamp without time zone SORTKEY DISTKEY,
         year int2,
         quarter int2,
         month int2,
         day int2,
-        day_of_week int2,
         hour int2,
-        minute int2,
-        second int2,
-        CONSTRAINT d_time_detail_pk PRIMARY KEY (d_time)
+        minute int2
         );""")
 
-    create_d_weather = ("""CREATE TABLE weatherfly.d_weather (
-        weather_id int NOT NULL,
-        'date' date,
+    create_d_weather = ("""CREATE TABLE public.d_weather (
+        weather_id int identity(0,1) NOT NULL PRIMARY KEY,
+        airport_name varchar(100),
+        "date" date SORTKEY DISTKEY,
         max_temp int2,
         min_temp int2,
         avg_temp numeric(4,1),
         precipitation_in numeric(5,2),
         snow_fall_in numeric(5,2),
-        snow_depth_in numeric(5,2),
-        CONSTRAINT d_weather_detail_pk PRIMARY KEY (d_weather)
+        snow_depth_in numeric(5,2)
         );""")
 
-    create_d_airport = ("""CREATE TABLE weatherfly.d_airport (
+    create_d_airport = ("""CREATE TABLE public.d_airport (
+        airport_id int identity(0,1) NOT NULL PRIMARY KEY,
         name varchar(100) NOT NULL,
         airport_code varchar(3),
         city varchar(50),
         state varchar(2),
         country varchar(3),
         latitude numeric(13,8),
-        longitude numeric(13,8),
-        CONSTRAINT d_airport_detail_pk PRIMARY KEY (d_airport)
+        longitude numeric(13,8)
         );""")
