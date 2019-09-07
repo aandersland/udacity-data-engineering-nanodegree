@@ -46,8 +46,8 @@ else:
 print('\n')
 
 # initialize airflow db
-# subprocess.run(f'export AIRFLOW_HOME={airflow_path} && airflow initdb',
-#                env={'PATH': venv_path}, shell=True)
+subprocess.run(f'export AIRFLOW_HOME={airflow_path} && airflow initdb',
+               env={'PATH': venv_path}, shell=True)
 
 # udpate airflow config folder locations
 airflow_config = configparser.ConfigParser()

@@ -16,7 +16,7 @@ class StageToRedshiftOperator(BaseOperator):
         TIMEFORMAT AS '{}'
         COMPUPDATE {}
         STATUPDATE {}
-        FORMAT AS JSON '{}'
+        {} '{}' {}
     """
 
     @apply_defaults
@@ -30,7 +30,9 @@ class StageToRedshiftOperator(BaseOperator):
                  time_format='',
                  comp_update='',
                  stat_update='',
-                 format_json='',
+                 format_one='',
+                 format_two='',
+                 format_three='',
                  *args, **kwargs):
         """
         Initialization of an airflow operator to stage data from S3 into
@@ -44,7 +46,7 @@ class StageToRedshiftOperator(BaseOperator):
         :param time_format: Time formatting used in sql copy statement
         :param comp_update: Flag for turning on or off
         :param stat_update: Flag for turning on or off
-        :param format_json: Formatting set to auto or provide schema
+        :param format: Format the input file for loading
         :param args: Arguments from context
         :param kwargs: Keyword Arguments from context
         """
@@ -59,7 +61,9 @@ class StageToRedshiftOperator(BaseOperator):
         self.time_format = time_format
         self.comp_update = comp_update
         self.stat_update = stat_update
-        self.format_json = format_json
+        self.format_one = format_one
+        self.format_two = format_two
+        self.format_three = format_three
 
     def execute(self, context):
         """
@@ -86,7 +90,9 @@ class StageToRedshiftOperator(BaseOperator):
             self.time_format,
             self.comp_update,
             self.stat_update,
-            self.format_json
+            self.format_one,
+            self.format_two,
+            self.format_three
         )
         redshift.run(formatted_sql)
         self.log.info(f'Data copied to table: {self.table}')

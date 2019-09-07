@@ -95,6 +95,8 @@ def process_airports(_config):
 
     write_file(_r, 'airports.csv', _inbound_data_folder)
 
+    write_file_only_intl_airports('airports.csv', _inbound_data_folder)
+
 
 def get_url_content(_url, _params):
     """
@@ -131,7 +133,7 @@ def write_file(_response, _file_name, _directory):
     """
     if not os.path.exists(_directory):
         os.mkdir(_directory)
-    # todo need to unzip the bz2 files on s3
+
     if 'no data available' not in _response.text:
         with open(f'{_directory}/{_file_name}', 'wb') as fd:
             for chunk in _response.iter_content(chunk_size=1024):
@@ -139,16 +141,32 @@ def write_file(_response, _file_name, _directory):
             fd.close()
 
 
+def write_file_only_intl_airports(_file, _inbound_data_folder):
+    _new_file = f'intl_{_file}'
+
+    _df = pd.read_csv(_inbound_data_folder + '/' + _file)
+
+    _df_intl = _df.query(
+        'airport.str.contains("Intl") or airport.str.contains("International")')
+
+    pd.DataFrame.to_csv(_df_intl, _inbound_data_folder + '/' + _new_file,
+                        index=False)
+
+
 def convert_json_format(_json, _pos):
-    _new = {'name': _json['meta']['name'],
-            'date': _json['data'][_pos][0],
-            'max_temp': _json['data'][_pos][1],
-            'min_temp': _json['data'][_pos][2],
-            'avg_temp': _json['data'][_pos][3],
-            'precipitation_in': _json['data'][_pos][4],
-            'snow_fall_in': _json['data'][_pos][5],
-            'snow_depth_in': _json['data'][_pos][6]}
-    _new_json = json.dumps(_new)
+    try:
+        _new = {'name': _json['meta']['name'],
+                'date': _json['data'][_pos][0],
+                'max_temp': _json['data'][_pos][1],
+                'min_temp': _json['data'][_pos][2],
+                'avg_temp': _json['data'][_pos][3],
+                'precipitation_in': _json['data'][_pos][4],
+                'snow_fall_in': _json['data'][_pos][5],
+                'snow_depth_in': _json['data'][_pos][6]}
+        _new_json = json.dumps(_new)
+    except KeyError:
+        return None
+
     if _json['data'][_pos][0] == 'M' or _json['data'][_pos][1] == 'M':
         return None
     else:
@@ -184,7 +202,9 @@ def main():
     config = configparser.ConfigParser()
     config.read('configs.cfg')
 
-    # process_airports(config)
+    # write_file_only_intl_airports('airports.csv',
+    #                               '/home/bytze/code/github/udacity-data-engineering-nanodegree/capstone_project/data/inbound')
+    process_airports(config)
     # process_flights(config)
     process_weather(config)
 

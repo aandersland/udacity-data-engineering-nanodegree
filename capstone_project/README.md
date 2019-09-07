@@ -88,7 +88,8 @@ $ source projectname/bin/activate
 * https://docs.aws.amazon.com/redshift/latest/dg/r_DATEDIFF_function.html
 * https://docs.aws.amazon.com/redshift/latest/dg/r_COPY_command_examples.html
 * https://docs.aws.amazon.com/redshift/latest/dg/copy-parameters-data-conversion.html
-*
+* https://docs.aws.amazon.com/redshift/latest/dg/r_INITCAP.html
+
 
 ## Data Model
 
