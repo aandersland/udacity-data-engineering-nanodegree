@@ -38,6 +38,7 @@ class LoadFactOperator(BaseOperator):
         formatted_sql = self.sql_statement.format(
             self.table
         )
+
         self.log.info(f'Running sql statement: {formatted_sql}')
         redshift.run(formatted_sql)
 

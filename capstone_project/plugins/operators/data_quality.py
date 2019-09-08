@@ -47,6 +47,8 @@ class DataQualityOperator(BaseOperator):
                     f'Data quality checks on table {table} '
                     f'passed with {records[0][0]} records')
 
+        # todo add additional checks here
+
         if checks_failed:
             raise ValueError(
                 'Data quality checks failed on 1 or more tables.')

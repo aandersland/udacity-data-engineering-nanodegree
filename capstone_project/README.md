@@ -1,27 +1,78 @@
 
 ## Project Summary
-Weatherfly is a new startup company in stealth mode that is looking to improve airline travel for businesses and families. Flight delays are known to many who travel across the United States and is an area with many promising opportunities. In order to prove out their business model they need to be able to reliably predict when delays are likely to occur. They have asked our company to setup a production anaytics environment for them to run their analysis and machine learning models.
+Weatherfly is a new startup company in stealth mode that is looking to improve airline travel for businesses and families. Flight delays are known to many who travel across the United States and is an area with many promising opportunities. In order to prove out their business model they need to be able to reliably predict when delays are likely to occur. They have asked our company to setup a production analytics environment for them to run their analysis and machine learning models.
 
-## Project Scope
+## Scope and Goals
+The scope is to build an analytics platform on AWS Redshift for the Weatherfly team to run queries against. The goal is to have 20 years worth of flight and weather data to support their analysis. In order to meet these goals, we need to do the following:
+1. Find a data source that has 20 years worth of US flight data and corresponding airport data. To determine how weather affects travel we will also need to get the associated weather data for these airports over this same time period.
+2. The data will need to be cleaned up and prepared for the data model.
+3. In order to ensure we have fast queries, we will use a Fact and Dimmension model.
+4. The data will be uploaded to S3 and loaded into stage tables in Redshift. From there we will load into the Fact / Dimmension tables.
+5. The ETL pipeline will be built using Airflow to schedule and coordinate the activities.
+
+## Gather Data
+After doing some extensive online searches for the data, I arrived at the following sources of data to meet our goals. 
+
+**Flights -** The site stat-computing.org had a great [flight data set](http://stat-computing.org/dataexpo/2009/the-data.html) for the years of 1987 to 2008. These files were bz2 compressed csv files containing US flight data for each year.
+
+**Airports -** Originally, I used the supplemental [airport data](http://stat-computing.org/dataexpo/2009/supplemental-data.html) provided along with the flight data, however I moved away from that later in the project. This is the [airport data set](https://openflights.org/data.html#airport), I ended up using as it had more information and better names from openflights.org. 
+
+**Weather -**
+The [Applied Climate Information System](http://www.rcc-acis.org/docs_webservices.html) site had a great API to pull detailed weather data. It had detailed documentation and great set of examples to work off of. 
+
+**Download Data -** All three of these datasets were pulled down locally for analysis using the gather_datasets.py script. This allowed us to use a Jupyter Notebook to explore the data sets and identify some of the data issues we would need to fix. The script can be configured to use sequential or parallel processing to download the data depending on your system (see the configs.cfg for more details).
 
 ## Data Exploration
-Flight Data -
-* 1987 - http://stat-computing.org/dataexpo/2009/the-data.html
-* 2003 - http://stat-computing.org/dataexpo/2009/the-data.html
+In our exploration of the data we noted several areas that needed to be cleaned up before we could process the data into our model. See the [Jupyter Notebook]() or the [SQL statements]() for more details.
 
-Airport Data -
-* http://stat-computing.org/dataexpo/2009/supplemental-data.html
-* no https://openflights.org/data.html#airport
-* no https://raw.githubusercontent.com/jpatokal/openflights/master/data/airports.dat
+**Key Data Decisions -**
+ * Only use US International airports and corresponding flight/weather data - This decision was made due to the fact that we did not have adequate flight/weather data for the smaller airports across the US.
+ * 
 
-Weather Data -
-* http://www.rcc-acis.org/docs_webservices.html
-* http://jsfiddle.net/KEggleston/TrZY4/
-* http://builder.rcc-acis.org/index2.html
+**Flight Data -**
+ * Include only US international airport flights
+ * Convert date and time fields to a single datetime field - special handling was needed due to invalid values (i.e. 95 minutes or the time 2525)
+ * Text in numerical columns - Replace with null
+ 
+**Airport Data -**
+ * Text with whitespaces - Trim fields on upload
+ * Filter out non-USA flight data
+ * Rename columns to be more meaning full
+ * Null fields - removed from final data set
+ * Include only US international airports - 
 
+**Weather Data -**
+ * Text in numerical columns - Replaced with 0's
+ Include only weather data for US international airports
+  
 ## Data Model
+* Use a fact/dimmension model for speed of analytic queries
+* pk, distkey, sortkey
+* data dictionary
+* Identify table definitions, joins, primary keys, sort keys, distribution keys
+* 
+(capstone_data_model.png)
 
 ## ETL
+* pipeline pic
+* Detail each step
+* dq checks (create check for all years, integrity constraints, stage/table counts)
+* queries to run
+
+Project Write Up
+Detail why each tech was chosen
+Data updates how often and why
+
+final dataset results
+
+Future state scenarios
+If the data was increased by 100x:
+If the pipelines were run on a daily basis by 7am:
+If the database needed to be accessed by 100+ people:
+
+
+
+
 
 ## How to Run
 1. Setup an [AWS account](https://aws.amazon.com/premiumsupport/knowledge-center/create-and-activate-aws-account/) and [create a user](https://docs.aws.amazon.com/IAM/latest/UserGuide/getting-started_create-admin-group.html) that has read access to S3 and admin rights on Redshift.
@@ -89,68 +140,5 @@ $ source projectname/bin/activate
 * https://docs.aws.amazon.com/redshift/latest/dg/r_COPY_command_examples.html
 * https://docs.aws.amazon.com/redshift/latest/dg/copy-parameters-data-conversion.html
 * https://docs.aws.amazon.com/redshift/latest/dg/r_INITCAP.html
-
-
-## Data Model
-
-### f_flights
-* flights_id (integer)
-* flight_detail_id (integer)
-* airport_depart_id (integer)
-* airport_depart_weather_id (integer)
-* depart_time_id (integer)
-* airport_arrival_id (integer)
-* airport_arrival_weather_id (integer)
-* arrival_time_id (integer)
-* schdld_flight_time_sec (integer)
-* schdld_flight_time_min (integer)
-* flight_time_sec (integer)
-* flight_time_min (integer)
-* depart_delay_sec (integer)
-* depart_delay_min (integer)
-* arrival_delay_sec (integer)
-* arrival_delay_min (integer)
-
-### d_flight_detail
-* flight_detail_id (integer)
-* carrier (string)
-* origin (string)
-* dest (string)
-* distance (integer)
-* schdld_depart_time (datetime)
-* schdld_arrival_time (datetime)
-* cancelled (integer)
-* diverted (integer)
-
-### d_time
-* time_id (integer)
-* date (date)
-* datetime (datetime)
-* timezone (string)
-* year (integer)
-* quarter (integer)
-* month (integer)
-* day (integer)
-* day_of_week (integer)
-* hour (integer)
-* minute (integer)
-* second (integer)
-
-### d_weather
-* weather_id (integer)
-* date (date)
-* max_temp (integer)
-* min_temp (integer)
-* avg_temp (integer)
-* precipitation_in (integer)
-* snow_fall_in (integer)
-* snow_depth_in (integer)
-
-### d_airport
-* name (string)
-* airport_code (string)
-* city (string)
-* state (string)
-* country (string)
-* latitude (float)
-* longitude (float)
+* https://docs.aws.amazon.com/redshift/latest/dg/copy-parameters-data-conversion.html#copy-acceptinvchars
+*

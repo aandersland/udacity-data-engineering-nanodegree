@@ -14,8 +14,10 @@ class WeatherflyPlugin(AirflowPlugin):
         operators.LoadFactOperator,
         operators.LoadDimensionOperator,
         operators.DataQualityOperator,
-        operators.CreateTablesInRedshiftOperator
+        operators.CreateTablesInRedshiftOperator,
+        operators.AirportNameTranslate
     ]
     helpers = [
-        helpers.SqlQueries
+        helpers.SqlQueries,
+        helpers.CreateTables
     ]

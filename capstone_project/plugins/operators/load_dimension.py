@@ -41,6 +41,7 @@ class LoadDimensionOperator(BaseOperator):
         formatted_sql = self.sql_statement.format(
             self.table
         )
+
         if self.truncate_table:
             self.log.info(f'Truncate table: {self.truncate_table}')
             truncate_sql = f'TRUNCATE TABLE {self.table}'

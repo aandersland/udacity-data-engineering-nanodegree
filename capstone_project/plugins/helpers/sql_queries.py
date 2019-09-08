@@ -12,13 +12,11 @@ staging_airports_copy = None
 
 class SqlQueries:
     f_flights = ("""
-        INSERT INTO f_flights (
+        INSERT INTO {} (
             flight_detail_id,
             schdld_depart_time_id,
             airport_depart_id,
-            airport_arrival_id,
             weather_airport_depart_id,
-            weather_airport_arrival_id,
             schdld_flight_time_min,
             flight_time_min,
             depart_delay_min,
@@ -28,9 +26,7 @@ class SqlQueries:
             fd.flight_detail_id,
             dt.datetime,
             da_depart.airport_id AS airport_depart_id,
-            da_arrive.airport_id AS airport_arrival_id,
             dw_depart.weather_id AS weather_airport_depart_id,
-            dw_arrive.weather_id AS weather_airport_arrival_id,
             DATEDIFF(MINS, fd.schdld_arvl_time, fd.schdld_dprt_time) as schdld_flight_time_min,
             CASE WHEN fd.arvl_time = NULL or fd.dprt_time = NULL THEN NULL
             	ELSE DATEDIFF(MINS, fd.arvl_time, fd.dprt_time) END as flight_time_min,
@@ -42,12 +38,12 @@ class SqlQueries:
         JOIN d_time dt ON dt.datetime = fd.schdld_dprt_time
         JOIN d_airport da_depart ON da_depart.airport_code = fd.origin
         JOIN d_airport da_arrive ON da_arrive.airport_code = fd.dest
-        JOIN d_weather dw_depart ON LOWER(REPLACE(dw_depart.airport_name, 'INTERNATIONAL AIRPORT', 'Intl')) = LOWER(da_depart.name)
-        JOIN d_weather dw_arrive ON LOWER(REPLACE(dw_arrive.airport_name, 'INTERNATIONAL AIRPORT', 'Intl')) = LOWER(da_arrive.name);
+        LEFT JOIN d_weather dw_depart ON dw_depart.airport_name = da_depart.name AND dw_depart.date = fd.schdld_dprt_time
+        LEFT JOIN d_weather dw_arrive ON dw_arrive.airport_name = da_arrive.name AND dw_arrive.date = fd.schdld_arvl_time;
     """)
 
     d_flight_detail = ("""
-        INSERT INTO d_flight_detail (
+        INSERT INTO {} (
             carrier,
             origin,
             dest,
@@ -114,6 +110,49 @@ class SqlQueries:
             Cancelled::int2 AS cancelled,
             Diverted::int2 AS diverted
         FROM stage_flight_details
+        WHERE ((LEN(crsdeptime) = 4 AND 
+                LEFT(REPLACE(crsdeptime, 'NA', 0000), 2)::int2 <= 24 AND 
+                RIGHT(REPLACE(crsdeptime, 'NA', 000), 2)::int2 <= 59) OR
+            (LEN(crsdeptime) = 3 AND 
+                LEFT(REPLACE(crsdeptime, 'NA', 000), 1)::int2 <= 9 AND 
+                RIGHT(REPLACE(crsdeptime, 'NA', 000), 2)::int2 <= 59) OR
+            (LEN(crsdeptime) = 2 AND 
+                RIGHT(REPLACE(crsdeptime, 'NA', 00), 2)::int2 <= 59) OR
+            (LEN(crsdeptime) = 1 AND 
+                LEFT(REPLACE(crsdeptime, 'NA', 0), 1)::int2 <= 9)) AND
+            
+            ((LEN(crsarrtime) = 4 AND 
+                LEFT(REPLACE(crsarrtime, 'NA', 0000), 2)::int2 <= 24 AND 
+                RIGHT(REPLACE(crsarrtime, 'NA', 000), 2)::int2 <= 59) OR
+            (LEN(crsarrtime) = 3 AND 
+                LEFT(REPLACE(crsarrtime, 'NA', 000), 1)::int2 <= 9 AND 
+                RIGHT(REPLACE(crsarrtime, 'NA', 000), 2)::int2 <= 59) OR
+            (LEN(crsarrtime) = 2 AND 
+                RIGHT(REPLACE(crsarrtime, 'NA', 00), 2)::int2 <= 59) OR
+            (LEN(crsarrtime) = 1 AND 
+                LEFT(REPLACE(crsarrtime, 'NA', 0), 1)::int2 <= 9)) AND
+               
+            ((LEN(deptime) = 4 AND 
+                LEFT(REPLACE(deptime, 'NA', 0000), 2)::int2 <= 24 AND 
+                RIGHT(REPLACE(deptime, 'NA', 000), 2)::int2 <= 59) OR
+            (LEN(deptime) = 3 AND 
+                LEFT(REPLACE(deptime, 'NA', 000), 1)::int2 <= 9 AND 
+                RIGHT(REPLACE(deptime, 'NA', 000), 2)::int2 <= 59) OR
+            (LEN(deptime) = 2 AND 
+                RIGHT(REPLACE(deptime, 'NA', 00), 2)::int2 <= 59) OR
+            (LEN(deptime) = 1 AND 
+                LEFT(REPLACE(deptime, 'NA', 0), 1)::int2 <= 9)) AND
+                
+            ((LEN(arrtime) = 4 AND 
+                LEFT(REPLACE(arrtime, 'NA', 0000), 2)::int2 <= 24 AND 
+                RIGHT(REPLACE(arrtime, 'NA', 000), 2)::int2 <= 59) OR
+            (LEN(arrtime) = 3 AND 
+                LEFT(REPLACE(arrtime, 'NA', 000), 1)::int2 <= 9 AND 
+                RIGHT(REPLACE(arrtime, 'NA', 000), 2)::int2 <= 59) OR
+            (LEN(arrtime) = 2 AND 
+                RIGHT(REPLACE(arrtime, 'NA', 00), 2)::int2 <= 59) OR
+            (LEN(arrtime) = 1 AND 
+                LEFT(REPLACE(arrtime, 'NA', 0), 1)::int2 <= 9))     
         ORDER BY
         CAST(Year || '-' ||
             CASE WHEN LEN(Month) = 1 THEN '0' || MONTH ELSE MONTH END || '-' ||
@@ -129,8 +168,8 @@ class SqlQueries:
 
     d_time = ("""
         INSERT INTO {} (
-            "date",
             "datetime",
+            "date",
             "year",
             quarter,
             month,
@@ -141,10 +180,6 @@ class SqlQueries:
         SELECT DISTINCT
             CAST(Year || '-' ||
             CASE WHEN LEN(Month) = 1 THEN '0' || MONTH ELSE MONTH END || '-' ||
-            CASE WHEN LEN(DayofMonth) = 1 THEN '0' || DayofMonth ELSE DayofMonth END AS DATE),
-
-            CAST(Year || '-' ||
-            CASE WHEN LEN(Month) = 1 THEN '0' || MONTH ELSE MONTH END || '-' ||
             CASE WHEN LEN(DayofMonth) = 1 THEN '0' || DayofMonth ELSE DayofMonth END || ' ' ||
 	        CASE WHEN LEN(CRSDepTime) = 1 THEN ('00:0' || CRSDepTime)
 			     WHEN LEN(CRSDepTime) = 2 THEN '00:' || CRSDepTime
@@ -153,6 +188,10 @@ class SqlQueries:
      			  CASE WHEN SUBSTRING(CRSDepTime, 1, 2) = '24' THEN '00' ELSE SUBSTRING(CRSDepTime, 1, 2) END
      			  || ':' || SUBSTRING(CRSDepTime, 3, 2)
 		    END AS timestamp),
+            
+            CAST(Year || '-' ||
+            CASE WHEN LEN(Month) = 1 THEN '0' || MONTH ELSE MONTH END || '-' ||
+            CASE WHEN LEN(DayofMonth) = 1 THEN '0' || DayofMonth ELSE DayofMonth END AS DATE),
 
             "Year"::int2 AS "year",
             CASE WHEN Month in (1, 2, 3) THEN 'Q1'
@@ -197,7 +236,7 @@ class SqlQueries:
     """)
 
     d_weather = ("""
-        INSERT INTO d_weather (
+        INSERT INTO {} (
             airport_name,
             "date",
             max_temp,
@@ -234,22 +273,21 @@ class SqlQueries:
             name,
             airport_code,
             city,
-            state,
-            country,
             latitude,
-            longitude
+            longitude,
+            altitude
         ) 
         SELECT
-            TRIM(airport) as name,
+            TRIM(name),
             TRIM(iata) as airport_code,
             TRIM(city),
-            TRIM(state),
-            TRIM(country),
-            TRIM(lat) as latitude,
-            TRIM(long) as longitude 
+            lat as latitude,
+            long as longitude,
+            altitude 
         FROM stage_airports
-        WHERE city IS NOT NULL AND country = 'USA'
-        ORDER BY TRIM(iata);
+        WHERE city IS NOT NULL AND country = 'United States' AND 
+            (name LIKE '%International%' OR name LIKE '%Intl%')
+        ORDER BY TRIM(name);
     """)
 
     create_staging_flights = ("""CREATE TABLE IF NOT EXISTS 
@@ -259,7 +297,7 @@ class SqlQueries:
             DayofMonth varchar(10),
             DayOfWeek varchar(10),
             DepTime varchar(10),
-            CRSDepTime varchar(10),
+            CRSDepTime varchar(10) distkey,
             ArrTime varchar(10),
             CRSArrTime varchar(10),
             UniqueCarrier varchar(10),
@@ -283,22 +321,29 @@ class SqlQueries:
             NASDelay varchar(10),
             SecurityDelay varchar(10),
             LateAircraftDelay varchar(10)
-            );""")
+            ) sortkey (CRSDepTime, origin, dest);""")
 
     create_staging_airports = ("""CREATE TABLE IF NOT EXISTS
          public.stage_airports (
+            airport_id int2,
+            name varchar(100) distkey,
+            city varchar(100),
+            country varchar(100),
             iata varchar(10),
-            airport varchar(100) NOT NULL,
-            city varchar(50),
-            state varchar(10),
-            country varchar(50),
+            icao varchar(10),
             lat numeric(13,8),
-            long numeric(13,8)
-            );""")
+            long numeric(13,8),
+            altitude int2,
+            timezone_hours_offset numeric(4,1),
+            dst varchar(1),
+            timezone varchar(100),
+            transportation_type varchar(25),
+            data_source varchar(25)
+            ) sortkey (name, iata);""")
 
     create_staging_weather = ("""CREATE TABLE IF NOT EXISTS
          public.stage_weather (
-            name varchar(100),
+            name varchar(100) distkey,
             "date" date,
             max_temp varchar(10),
             min_temp varchar(10),
@@ -306,99 +351,84 @@ class SqlQueries:
             precipitation_in varchar(10),
             snow_fall_in varchar(10),
             snow_depth_in varchar(10)
-            );""")
+            ) sortkey (name, date);""")
 
     create_f_flights = ("""CREATE TABLE IF NOT EXISTS
          public.f_flights (
-            flights_id int identity(0,1) NOT NULL PRIMARY KEY,
+            flights_id int identity(0,1) NOT NULL PRIMARY KEY DISTKEY,
             flight_detail_id int4,
             schdld_depart_time_id timestamp,
             airport_depart_id int4,
             airport_arrival_id int4,
             weather_airport_depart_id int4,
             weather_airport_arrival_id int4,
-            schdld_flight_time_min int2,
-            flight_time_min int2,
-            depart_delay_min int2,
-            arrival_delay_min int2
-            );""")
+            schdld_flight_time_min int4,
+            flight_time_min int4,
+            depart_delay_min int4,
+            arrival_delay_min int4
+            ) sortkey(flights_id, flight_detail_id);""")
 
     create_d_flight_detail = ("""CREATE TABLE IF NOT EXISTS
          public.d_flight_detail (
-            flight_detail_id int identity(0,1) NOT NULL PRIMARY KEY,
+            flight_detail_id int identity(0,1) NOT NULL PRIMARY KEY DISTKEY,
             carrier varchar(6),
             origin varchar(3),
             dest varchar(3),
             distance int2,
-            schdld_dprt_time timestamp without time zone SORTKEY DISTKEY,
+            schdld_dprt_time timestamp without time zone,
             schdld_arvl_time timestamp without time zone,
             dprt_time timestamp without time zone,
             arvl_time timestamp without time zone,
             cancelled int2,
             diverted int2
-            );""")
+            ) SORTKEY(flight_detail_id, schdld_dprt_time);""")
 
     create_d_time = ("""CREATE TABLE IF NOT EXISTS public.d_time (
-            time_id int identity(0,1) NOT NULL PRIMARY KEY,
-            "date" date,
-            datetime timestamp without time zone SORTKEY DISTKEY,
+            time_id int identity(0,1) NOT NULL PRIMARY KEY DISTKEY,
+            datetime timestamp without time zone NOT NULL PRIMARY KEY DISTKEY,
+            "date" date ,
             year int2,
             quarter varchar(2),
             month int2,
             day int2,
             hour int2,
             minute int2
-            );""")
+            ) SORTKEY(datetime);""")
 
     create_d_weather = ("""CREATE TABLE IF NOT EXISTS public.d_weather (
             weather_id int identity(0,1) NOT NULL PRIMARY KEY,
             airport_name varchar(100),
-            "date" date SORTKEY DISTKEY,
+            "date" date DISTKEY,
             max_temp int2,
             min_temp int2,
             avg_temp numeric(4,1),
             precipitation_in numeric(5,2),
             snow_fall_in numeric(5,2),
             snow_depth_in numeric(5,2)
-            );""")
+            ) SORTKEY(weather_id, date, airport_name);""")
 
     create_d_airport = ("""CREATE TABLE IF NOT EXISTS public.d_airport (
             airport_id int identity(0,1) NOT NULL PRIMARY KEY,
             name varchar(100) NOT NULL,
             airport_code varchar(4),
             city varchar(50),
-            state varchar(2),
-            country varchar(3),
             latitude numeric(13,8),
-            longitude numeric(13,8)
-            );""")
+            longitude numeric(13,8),
+            altitude int2
+            ) SORTKEY(airport_id, airport_code, name);""")
 
-    staging_flights_copy = ("""
-            copy stage_flight_details from '{}'
-            credentials 'aws_iam_role={}'
-            region '{}'
-            timeformat 'auto'
-            dateformat 'auto'
-            compupdate off
-            statupdate off
-            delimiter ',' ignoreheader as 1 bzip2;""")
+    create_weather_airport_name_translate = (
+        """CREATE TABLE IF NOT EXISTS 
+        public.weather_airport_name_translate (
+            new_airport_name varchar(100),
+            old_airport_name varchar(100)
+        );""")
 
-    staging_weather_copy = ("""
-            copy stage_weather from '{}'
-            credentials 'aws_iam_role={}'
-            region '{}'
-            compupdate off
-            statupdate off
-            timeformat 'auto'
-            dateformat 'auto'
-            format as JSON 'auto';""")
-
-    staging_airports_copy = ("""
-            copy stage_airports from '{}'
-            credentials 'aws_iam_role={}'
-            region '{}'
-            compupdate off
-            statupdate off
-            timeformat 'auto'
-            dateformat 'auto'
-            delimiter ',' removequotes escape ignoreheader as 1;""")
+    weather_airport_name_translate = (
+        """
+        UPDATE stage_weather
+        SET name = new_airport_name
+        FROM weather_airport_name_translate join stage_weather w on 
+        UPPER(weather_airport_name_translate.old_airport_name) = w.name        
+        """
+    )

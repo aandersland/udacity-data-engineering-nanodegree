@@ -5,7 +5,8 @@ from airflow.models import Variable
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators import (StageToRedshiftOperator, LoadFactOperator,
                                LoadDimensionOperator, DataQualityOperator,
-                               CreateTablesInRedshiftOperator)
+                               CreateTablesInRedshiftOperator,
+                               AirportNameTranslate)
 from helpers import SqlQueries
 
 # from helpers import CreateTables
@@ -13,7 +14,7 @@ from helpers import SqlQueries
 default_args = {
     'owner': 'weatherfly',
     'depends_on_past': False,
-    'retries': 3,
+    'retries': 0,
     'retry_delay': timedelta(seconds=30),
     'email_on_retry': False,
     'catchup': False,
@@ -22,8 +23,8 @@ default_args = {
 dag = DAG('weatherfly_dag',
           default_args=default_args,
           description='Load and transform data in Redshift with Airflow',
-          start_date=datetime(2019, 9, 7),
-          end_date=datetime(2019, 9, 8),
+          start_date=datetime(2019, 9, 8),
+          end_date=datetime(2019, 9, 10),
           schedule_interval=None,
           max_active_runs=1
           )
@@ -36,6 +37,7 @@ create_stage_flight_details_table = CreateTablesInRedshiftOperator(
     redshift_conn_id='redshift',
     aws_credentials_id='aws_credentials',
     sql_statement=SqlQueries.create_staging_flights,
+    drop_sql=True,
     table='stage_flight_details',
     provide_context=True
 )
@@ -46,6 +48,7 @@ create_stage_airports_table = CreateTablesInRedshiftOperator(
     redshift_conn_id='redshift',
     aws_credentials_id='aws_credentials',
     sql_statement=SqlQueries.create_staging_airports,
+    drop_sql=True,
     table='stage_airports',
     provide_context=True
 )
@@ -56,6 +59,7 @@ create_stage_weather_table = CreateTablesInRedshiftOperator(
     redshift_conn_id='redshift',
     aws_credentials_id='aws_credentials',
     sql_statement=SqlQueries.create_staging_weather,
+    drop_sql=True,
     table='stage_weather',
     provide_context=True
 )
@@ -66,6 +70,7 @@ create_f_flights_table = CreateTablesInRedshiftOperator(
     redshift_conn_id='redshift',
     aws_credentials_id='aws_credentials',
     sql_statement=SqlQueries.create_f_flights,
+    drop_sql=True,
     table='f_flights',
     provide_context=True
 )
@@ -76,6 +81,7 @@ create_d_flight_detail_table = CreateTablesInRedshiftOperator(
     redshift_conn_id='redshift',
     aws_credentials_id='aws_credentials',
     sql_statement=SqlQueries.create_d_flight_detail,
+    drop_sql=True,
     table='d_flight_detail',
     provide_context=True
 )
@@ -86,6 +92,7 @@ create_d_time_table = CreateTablesInRedshiftOperator(
     redshift_conn_id='redshift',
     aws_credentials_id='aws_credentials',
     sql_statement=SqlQueries.create_d_time,
+    drop_sql=True,
     table='d_time',
     provide_context=True
 )
@@ -96,6 +103,7 @@ create_d_weather_table = CreateTablesInRedshiftOperator(
     redshift_conn_id='redshift',
     aws_credentials_id='aws_credentials',
     sql_statement=SqlQueries.create_d_weather,
+    drop_sql=True,
     table='d_weather',
     provide_context=True
 )
@@ -106,7 +114,19 @@ create_d_airport_table = CreateTablesInRedshiftOperator(
     redshift_conn_id='redshift',
     aws_credentials_id='aws_credentials',
     sql_statement=SqlQueries.create_d_airport,
+    drop_sql=True,
     table='d_airport',
+    provide_context=True
+)
+
+create_weather_airport_name_translate = CreateTablesInRedshiftOperator(
+    task_id='create_weather_airport_name_translate',
+    dag=dag,
+    redshift_conn_id='redshift',
+    aws_credentials_id='aws_credentials',
+    sql_statement=SqlQueries.create_weather_airport_name_translate,
+    drop_sql=True,
+    table='weather_airport_name_translate',
     provide_context=True
 )
 
@@ -120,14 +140,14 @@ stage_flight_details_to_redshift = StageToRedshiftOperator(
     aws_credentials_id='aws_credentials',
     table='stage_flight_details',
     s3_bucket=Variable.get('s3_bucket'),
-    s3_key='inbound/flight_data/1988.csv.bz2',
+    s3_key='inbound/flight_data',
     aws_region='us-east-1',
     time_format='auto',
     comp_update='off',
     stat_update='off',
     format_one='delimiter',
     format_two=',',
-    format_three=' ignoreheader as 1 bzip2;',
+    format_three=" ignoreheader as 1 acceptinvchars as ' ' bzip2;",
     provide_context=True
 )
 
@@ -167,8 +187,36 @@ stage_airports_to_redshift = StageToRedshiftOperator(
     provide_context=True
 )
 
+stage_weather_airport_name_translate_to_redshift = StageToRedshiftOperator(
+    task_id='stage_weather_airport_name_translate',
+    dag=dag,
+    redshift_conn_id='redshift',
+    aws_credentials_id='aws_credentials',
+    table='weather_airport_name_translate',
+    s3_bucket=Variable.get('s3_bucket'),
+    s3_key='inbound/weather_airport_name_xref',
+    aws_region='us-east-1',
+    time_format='auto',
+    comp_update='off',
+    stat_update='off',
+    format_one='delimiter',
+    format_two=',',
+    format_three='removequotes escape ignoreheader as 1;',
+    provide_context=True
+)
+
 stage_data_operator = DummyOperator(task_id='Stage_Data_execution',
                                     dag=dag)
+
+weather_airport_name_translate = AirportNameTranslate(
+    task_id='weather_airport_name_translate',
+    dag=dag,
+    redshift_conn_id='redshift',
+    aws_credentials_id='aws_credentials',
+    sql_statement=SqlQueries.weather_airport_name_translate,
+    table='d_weather',
+    provide_context=True
+)
 
 load_flights_table = LoadFactOperator(
     task_id='Load_flights_fact_table',
@@ -186,7 +234,7 @@ load_flight_detail_dimension_table = LoadDimensionOperator(
     aws_credentials_id='aws_credentials',
     table='d_flight_detail',
     sql_statement=SqlQueries.d_flight_detail,
-    truncate_table=False,
+    truncate_table=True,
     dag=dag,
     provide_context=True
 )
@@ -197,7 +245,7 @@ load_weather_dimension_table = LoadDimensionOperator(
     aws_credentials_id='aws_credentials',
     table='d_weather',
     sql_statement=SqlQueries.d_weather,
-    truncate_table=False,
+    truncate_table=True,
     dag=dag,
     provide_context=True
 )
@@ -208,7 +256,7 @@ load_airport_dimension_table = LoadDimensionOperator(
     aws_credentials_id='aws_credentials',
     table='d_airport',
     sql_statement=SqlQueries.d_airport,
-    truncate_table=False,
+    truncate_table=True,
     dag=dag,
     provide_context=True
 )
@@ -219,7 +267,7 @@ load_time_dimension_table = LoadDimensionOperator(
     aws_credentials_id='aws_credentials',
     table='d_time',
     sql_statement=SqlQueries.d_time,
-    truncate_table=False,
+    truncate_table=True,
     dag=dag,
     provide_context=True
 )
@@ -245,7 +293,8 @@ start_operator >> [create_stage_airports_table,
                    create_d_flight_detail_table,
                    create_d_airport_table,
                    create_d_weather_table,
-                   create_d_time_table]
+                   create_d_time_table,
+                   create_weather_airport_name_translate]
 
 # staging tables
 create_stage_airports_table >> table_created_operator
@@ -253,6 +302,8 @@ create_stage_airports_table >> table_created_operator
 create_stage_flight_details_table >> table_created_operator
 
 create_stage_weather_table >> table_created_operator
+
+create_weather_airport_name_translate >> table_created_operator
 
 # airport path
 [create_stage_airports_table,
@@ -265,9 +316,13 @@ stage_airports_to_redshift >> stage_data_operator
 [create_stage_weather_table,
  create_d_weather_table] >> table_created_operator
 
-table_created_operator >> stage_weather_to_redshift
+table_created_operator >> [stage_weather_to_redshift,
+                           stage_weather_airport_name_translate_to_redshift]
 
-stage_weather_to_redshift >> stage_data_operator
+[stage_weather_to_redshift,
+ stage_weather_airport_name_translate_to_redshift] \
+>> weather_airport_name_translate
+weather_airport_name_translate >> stage_data_operator
 
 # flight detail path
 [create_stage_flight_details_table,
