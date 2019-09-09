@@ -11,6 +11,7 @@ class DataQualityOperator(BaseOperator):
                  redshift_conn_id='',
                  aws_credentials_id='',
                  tables='',
+                 years='',
                  *args, **kwargs):
         """
         Operator performs data quality checks on tables: emtpy tables
@@ -23,6 +24,7 @@ class DataQualityOperator(BaseOperator):
         super(DataQualityOperator, self).__init__(*args, **kwargs)
         self.redshift_conn_id = redshift_conn_id
         self.tables = tables
+        self.years = years
         self.aws_credentials_id = aws_credentials_id
 
     def execute(self, context):
@@ -47,7 +49,24 @@ class DataQualityOperator(BaseOperator):
                     f'Data quality checks on table {table} '
                     f'passed with {records[0][0]} records')
 
-        # todo add additional checks here
+        for year in self.years:
+            count = redshift.get_records(
+                f'SELECT COUNT(t.year) '
+                f'FROM f_flights f '
+                f'JOIN d_flight_detail d '
+                f'ON d.flight_detail_id = f.flight_detail_id '
+                f'JOIN d_time t ON t.datetime = f.schdld_depart_time_id '
+                f'WHERE t.year = {year} '
+                )
+            if len(count) < 1 or len(count[0]) < 1 or count[0][0] < 1:
+                checks_failed = True
+                self.log.error(
+                    f'Data quality check for year {year}, no records found.'
+                )
+            else:
+                self.log.info(
+                    f'Data quality check passed for year {year} '
+                    f'with {count[0][0]} records')
 
         if checks_failed:
             raise ValueError(

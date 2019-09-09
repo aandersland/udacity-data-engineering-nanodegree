@@ -68,7 +68,7 @@ print('airflow dags location: ', airflow_config['core']['dags_folder'])
 print('airflow plugins location: ', airflow_config['core']['plugins_folder'])
 
 # reinitialize airflow db with new configs
-# subprocess.run(f'export AIRFLOW_HOME={airflow_path} && airflow initdb',
-#                env={'PATH': venv_path}, shell=True)
+subprocess.run(f'export AIRFLOW_HOME={airflow_path} && airflow initdb',
+               env={'PATH': venv_path}, shell=True)
 
 print('\nScript Complete.')

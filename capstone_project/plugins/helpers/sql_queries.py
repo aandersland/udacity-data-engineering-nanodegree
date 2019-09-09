@@ -384,7 +384,6 @@ class SqlQueries:
             ) SORTKEY(flight_detail_id, schdld_dprt_time);""")
 
     create_d_time = ("""CREATE TABLE IF NOT EXISTS public.d_time (
-            time_id int identity(0,1) NOT NULL PRIMARY KEY DISTKEY,
             datetime timestamp without time zone NOT NULL PRIMARY KEY DISTKEY,
             "date" date ,
             year int2,
