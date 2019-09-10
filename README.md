@@ -48,7 +48,7 @@ In order to meet the companies needs, I did the following:
 Technologies used: Python, SparkSQL, Spark Dataframes, Spark WebUI, S3, EMR, Athena, Amazon Glue
 
 
-## Project 5 - [Data Pipelines with Apache Airflow](https://github.com/aandersland/udacity-data-engineering-nanodegree/tree/master/data_pipelines_apache_airflow) - Submitted
+## Project 5 - [Data Pipelines with Apache Airflow](https://github.com/aandersland/udacity-data-engineering-nanodegree/tree/master/data_pipelines_apache_airflow) - Complete
 Sparkify is a new startup company that released a new music streaming app. Their user base has increased and their architecture footprint is also increasing. To manage this infrastructure they are looking to increase the automation and monitoring of their data pipelines. They have chosen to use Apache Airflow as their tool of choice.
 
 In order to meet the companies needs, I did the following:
@@ -64,9 +64,16 @@ Technologies used: Python, Apache Airflow, Redshift, S3
 
 
 ## [Capstone Project](https://github.com/aandersland/udacity-data-engineering-nanodegree/tree/master/capstone_project) - In-progress
-Combine what you've learned throughout the program to build your own data engineering portfolio project.
+Weatherfly is a new startup company in stealth mode that is looking to improve airline travel for businesses and families. Flight delays are known to many who travel across the United States and is an area with many promising opportunities. In order to prove out their business model they need to be able to reliably predict when delays are likely to occur. They have asked our company to setup a production analytics environment for them to run their analysis and machine learning models.
 
-Technologies used: Python
+The scope is to build an analytics platform on AWS Redshift for the Weatherfly team to run queries against. The goal is to have 20 years worth of flight and weather data to support their analysis. In order to meet these goals, we need to do the following:
+* Find a data source that has 20 years worth of US flight data and corresponding airport data. To determine how weather affects travel we will also need to get the associated weather data for these airports over this same time period.
+* The data will need to be cleaned up and prepared for the data model.
+* In order to ensure we have fast queries, we will use a Fact and Dimmension model.
+* The data will be uploaded to S3 and loaded into stage tables in Redshift. From there we will load into the Fact / Dimmension tables.
+* The ETL pipeline will be built using Airflow to schedule and coordinate the activities.
+
+Technologies used: Python, Apache Airflow, S3, Redshift
 
 ## References:
 Project definitions - https://www.udacity.com/course/data-engineer-nanodegree--nd027
