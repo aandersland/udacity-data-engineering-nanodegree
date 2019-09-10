@@ -60,6 +60,7 @@ Now that we have our data sets and areas to clean up we can create our data mode
 * d_weather - All weather information is located in this table.
 * weather_airport_name_translate - This is a translation table used in the ETL and is not a dimmensional table.
 
+### Data Model Image
 ![Data Model](capstone_data_model.png)
 
 ### Data Dictionary
@@ -144,8 +145,10 @@ If the data was increased by 100x:
 1. The first change would be to increase the amount of Redshift nodes in the cluster.
 2. File size matters in this solution. If the files grow in size rather then the number of files, then consideration should be made to split them in order to continue to benefit from the parallelism of S3 and Redshift.
 3. Move Airflow to a clustered instance. This will ensure that tasks that can run in parallel continue to do so by having enough resources to process.
+
 If the pipelines were run on a daily basis by 7am:
 1. No change is needed as Airflow is currently being used and just needs to be scheduled.
+2. Performance considerations are noted above to ensure the data is completed by 7am.
 
 If the database needed to be accessed by 100+ people:
 1. Concurrent usage needs is dependant on the Redshift cluster size, the type of queries they are running, and the expected execution time of the queries. Scaling the number of Redshift nodes should be considered.
@@ -156,25 +159,40 @@ If the database needed to be accessed by 100+ people:
 
     ![AWS Access](weatherfly_aws_access.png)
 
-2. Run **python3 venv_setup.py**
+2. Setup the following [configurations](configs.cfg), more details are found in the configuration file.
+
+    | Section | Config |
+    |----|----|
+    |GENERAL|START_YEAR|
+    |GENERAL|END_YEAR|
+    |GENERAL|CPU_CORES_PARALLEL_PROCESSING|
+    |GENERAL|BASE_DIRECTORY|
+    |AWS|KEY|
+    |AWS|SECRET|
+    |AWS|REGION|
+    |S3|FLIGHT_DATA|
+    |S3|WEATHER_DATA|
+    |S3|AIRPORT_DATA|
+
+3. Run **python3 venv_setup.py**
   * You will receive the following text and is expected. Once you complete the Airflow UI setup, this message will be resolved. 
     * KeyError: 'Variable s3_bucket does not exist'
     * Done.
     * Script Complete.
-3. Run **source venv/bin/activate**, you should see (venv) at the beginning of the line.
-4. Run **pwd** and copy the path
-5. Run **export AIRFLOW_HOME=(paste from step 5)/airflow**
-6. Create new terminal and run **source venv/bin/activate** then **airflow webserver -p 8080**
-7. Create new terminal and run **source venv/bin/activate** then **airflow scheduler**
-8. Navigate to http://localhost:8080/admin/variable/ and create a new one with the details:
+4. Run **source venv/bin/activate**, you should see (venv) at the beginning of the line.
+5. Run **pwd** and copy the path
+6. Run **export AIRFLOW_HOME=(paste from step 5)/airflow**
+7. Create new terminal and run **source venv/bin/activate** then **airflow webserver -p 8080**
+8. Create new terminal and run **source venv/bin/activate** then **airflow scheduler**
+9. Navigate to http://localhost:8080/admin/variable/ and create a new one with the details:
   * Key = s3_bucket
   * Val = weatherfly
-9. Navigate to http://localhost:8080/admin/connection/ and create a new connection with the details:
+10. Navigate to http://localhost:8080/admin/connection/ and create a new connection with the details:
   * Conn Id = aws_credentials
   * Conn Type = Amazon Web Services
   * Login = AWS Key from your IAM user credentials
   * Password = AWS Secret from your IAM user credentials
-10. Navigate to http://localhost:8080/admin/connection/ and create a new connection with the details:
+11. Navigate to http://localhost:8080/admin/connection/ and create a new connection with the details:
   * Conn Id = redshift
   * Conn Type = Postgres
   * Host = (enter your Redshift host path here without the port number)
@@ -182,7 +200,8 @@ If the database needed to be accessed by 100+ people:
   * Password = (wflyuser password)
   * Schema = wfly
   * Port = 5439
-11. Navigate to the local [weatherfly_dag](http://localhost:8080/admin/airflow/tree?dag_id=weatherfly_dag) and toggle the DAG to On in the upper left. Wait for the schedule to run or manually trigger.
+12. Navigate to the local [weatherfly_dag](http://localhost:8080/admin/airflow/tree?dag_id=weatherfly_dag) and toggle the DAG to On in the upper left. Wait for the schedule to run or manually trigger.
+13. Manually delete your cluster in AWS when you are done.
 
 ## Resources
 * https://stackoverflow.com/questions/18885175/read-a-zipped-file-as-a-pandas-dataframe

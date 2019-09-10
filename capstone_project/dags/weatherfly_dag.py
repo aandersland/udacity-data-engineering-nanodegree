@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-import os
 from airflow import DAG
 from airflow.models import Variable
 from airflow.operators.dummy_operator import DummyOperator
@@ -9,7 +8,6 @@ from airflow.operators import (StageToRedshiftOperator, LoadFactOperator,
                                AirportNameTranslate)
 from helpers import SqlQueries
 
-# from helpers import CreateTables
 
 default_args = {
     'owner': 'weatherfly',
@@ -279,7 +277,8 @@ run_quality_checks = DataQualityOperator(
     task_id='Run_data_quality_checks',
     redshift_conn_id='redshift',
     aws_credentials_id='aws_credentials',
-    tables=['f_flights', 'd_flight_detail', 'd_time', 'd_weather', 'd_airport'],
+    tables=['f_flights', 'd_flight_detail',
+            'd_time', 'd_weather', 'd_airport'],
     years=[1988, 1989, 1990, 1991, 1992, 1993, 1994, 1995, 1996, 1997, 1998,
            1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008],
     dag=dag,
@@ -323,7 +322,7 @@ table_created_operator >> [stage_weather_to_redshift,
 
 [stage_weather_to_redshift,
  stage_weather_airport_name_translate_to_redshift] \
->> weather_airport_name_translate
+ >> weather_airport_name_translate
 weather_airport_name_translate >> stage_data_operator
 
 # flight detail path
@@ -339,7 +338,7 @@ create_d_time_table >> table_created_operator
 
 # load_flight_detail_dimension_table >> stage_data_operator
 
-# flights
+# flights path
 create_f_flights_table >> table_created_operator
 
 stage_data_operator >> [load_time_dimension_table,
@@ -354,7 +353,7 @@ stage_data_operator >> [load_time_dimension_table,
 
 data_loaded_operator >> load_flights_table
 
-# data quality checks
+# data quality checks path
 load_flights_table >> run_quality_checks
 
 run_quality_checks >> end_operator

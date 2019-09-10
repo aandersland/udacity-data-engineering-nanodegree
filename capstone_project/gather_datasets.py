@@ -2,8 +2,6 @@ import requests
 import configparser
 import os
 import pandas as pd
-import wget
-import collections
 import multiprocessing
 import json
 
@@ -147,7 +145,8 @@ def write_file_only_intl_airports(_file, _inbound_data_folder):
     _df = pd.read_csv(_inbound_data_folder + '/' + _file)
 
     _df_intl = _df.query(
-        'airport.str.contains("Intl") or airport.str.contains("International")')
+        'airport.str.contains("Intl") or '
+        'airport.str.contains("International")')
 
     pd.DataFrame.to_csv(_df_intl, _inbound_data_folder + '/' + _new_file,
                         index=False)
@@ -202,10 +201,8 @@ def main():
     config = configparser.ConfigParser()
     config.read('configs.cfg')
 
-    # write_file_only_intl_airports('airports.csv',
-    #                               '/home/bytze/code/github/udacity-data-engineering-nanodegree/capstone_project/data/inbound')
     process_airports(config)
-    # process_flights(config)
+    process_flights(config)
     process_weather(config)
 
 

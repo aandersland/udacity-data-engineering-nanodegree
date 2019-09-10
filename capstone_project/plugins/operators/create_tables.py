@@ -48,7 +48,3 @@ class CreateTablesInRedshiftOperator(BaseOperator):
         self.log.info(f'Creating table: {self.table}.')
         print('sql statement', self.sql_statement)
         redshift.run(self.sql_statement)
-
-
-
-

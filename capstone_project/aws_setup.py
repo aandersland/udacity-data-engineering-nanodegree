@@ -119,7 +119,8 @@ def create_redshift_cluster(_redshift, _cluster_type, _node_type, _num_nodes,
             # Roles (for s3 access)
             IamRoles=[_role_arn]
         )
-        print(datetime.datetime.now(), 'Sleeping 7 minutes for cluster to be created.')
+        print(datetime.datetime.now(),
+              'Sleeping 7 minutes for cluster to be created.')
         time.sleep(420)
     except Exception as e:
         print(e)
@@ -167,8 +168,8 @@ def get_aws_cluster_properties(_redshift, _cluster_identifier):
     """
     if check_aws_cluster_status(_redshift, _cluster_identifier):
         my_cluster_props = \
-            _redshift.describe_clusters(ClusterIdentifier=_cluster_identifier)[
-                'Clusters'][0]
+            _redshift.describe_clusters(
+                ClusterIdentifier=_cluster_identifier)['Clusters'][0]
 
         wfly_endpoint = my_cluster_props['Endpoint']['Address']
 
@@ -288,7 +289,8 @@ def create_cluster():
 
     # Exit if we do not have a cluster instance created. It is possible that
     # the instance is still being created. Rerun script to check again.
-    if _cluster_props is None or wfly_endpoint is None or wfly_role_arn is None:
+    if _cluster_props is None or wfly_endpoint is None or \
+            wfly_role_arn is None:
         sys.exit('UNABLE TO FIND CLUSTER, MANUALLY CHECK.')
 
     # add to config
@@ -300,7 +302,7 @@ def create_cluster():
 
     open_aws_tcp_port_to_cluster(_ec2, _cluster_props, wfly_port)
     print(*config['CLUSTER'].values())
-# todo https://stackoverflow.com/questions/28222445/aws-cli-client-unauthorizedoperation-even-when-keys-are-set
+
     print('Connecting to Redshift. . .')
     _conn = psycopg2.connect("host={} dbname={} user={} password={} port={}"
                              .format(*config['CLUSTER'].values()))
