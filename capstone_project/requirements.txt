@@ -21,7 +21,7 @@ colorlog==4.0.2
 configparser==3.5.3
 confuse==1.0.0
 croniter==0.3.30
-cryptography==2.7
+cryptography==3.2
 cycler==0.10.0
 decorator==4.4.0
 defusedxml==0.6.0
